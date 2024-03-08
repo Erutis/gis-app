@@ -40,49 +40,54 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 ENV_VARS = {
     "MYDB__HOST": "localhost",
-    "MYDB__DATABASE": "gis",
-    "POSTGRES_USER": "gis",
-    "MYDB__PORT": "gis",
+    "MYDB__DATABASE": "nyc",
+    "POSTGRES_USER": "nyc",
+    "MYDB__PORT": 5432,
     "MYDB__DRIVERNAME": "postgresql",
     "POSTGRES_PASSWORD": "gis",
     "platform": "linux/amd64",
 }
 
+LOCALHOST = ENV_VARS["MYDB__HOST"]
+DB = ENV_VARS["MYDB__DATABASE"]
+DRIVERNAME = ENV_VARS["MYDB__DRIVERNAME"]
+USER = ENV_VARS["POSTGRES_USER"]
+PW = ENV_VARS["POSTGRES_PASSWORD"]
+PORT = ENV_VARS["MYDB__PORT"]
+
 
 def setup_pg():
-    localhost = ENV_VARS["MYDB__HOST"]
-    db = ENV_VARS["MYDB__DATABASE"]
-    drivername = ENV_VARS["MYDB__DRIVERNAME"]
-    user = ENV_VARS["POSTGRES_USER"]
-    pw = ENV_VARS["POSTGRES_PASSWORD"]
-
-    engine = create_engine(f"postgresql://gis:gis@localhost:5432/gis", echo=True)
+    engine = create_gis_engine()
     pg_check(engine=engine)
 
-    # # Create Postgis extension
+    # # Create Postgis extension & check that it works
     with engine.connect() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
+        conn.execute(text("SELECT postgis_full_version();"))
+
+        create_tables(engine)
+
+        conn.commit()
 
     return None
 
 
-def create_tables():
-    engine = create_engine("postgresql://gis:gis@localhost:5432/gis", echo=True)
+def create_tables(engine):
+    # engine = create_gis_engine()
     Base = declarative_base()
 
-    with engine.connect() as conn:
+    class Trajectory(Base):
+        __tablename__ = "nyc"
+        id = Column(Integer, primary_key=True)
+        create_time = Column(TIMESTAMP)
+        updated_time = Column(TIMESTAMP)
+        geom = Column(Geometry("LINESTRINGZM"))
+        feed_item_id = Column(UUID)
 
-        class Trajectory(Base):
-            __tablename__ = "nyc"
-            id = Column(Integer, primary_key=True)
-            create_time = Column(TIMESTAMP)
-            updated_time = Column(TIMESTAMP)
-            geom = Column(Geometry("LINESTRINGZM"))
-            feed_item_id = Column(UUID)
+    # Trajectory.__table__
+    Trajectory.__table__.create(engine)
 
-        # Trajectory.__table__
-        Trajectory.__table__.create(engine)
-        conn.commit()
+    return None
 
 
 def pg_check(engine, max_retries=10):
@@ -102,6 +107,13 @@ def pg_check(engine, max_retries=10):
     raise exc_
 
 
+def create_gis_engine():
+    url = f"{DRIVERNAME}://{USER}:{PW}@{LOCALHOST}:{PORT}/{DB}"
+    engine = create_engine(url, echo=True)
+
+    return engine
+
+
 if __name__ == "__main__":
     client = docker.from_env()
     container = client.containers.run(
@@ -115,7 +127,6 @@ if __name__ == "__main__":
 
     try:
         setup_pg()
-        create_tables()
     except Exception as e:
         print(traceback.format_exc())
         print(e)
