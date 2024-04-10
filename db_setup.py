@@ -117,13 +117,12 @@ def create_gis_engine():
 if __name__ == "__main__":
     client = docker.from_env()
     container = client.containers.run(
-        "postgis/postgis",
+        "postgis/postgis:14-3.4",
         detach=True,
         name="geo",
         environment=ENV_VARS,
         ports={5432: 5432},
     )
-    # give it a chance to start up
 
     try:
         setup_pg()
