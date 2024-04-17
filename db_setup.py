@@ -68,6 +68,7 @@ def setup_pg():
         create_tables(engine)
 
         conn.commit()
+        print("Committed!")
 
     return None
 
@@ -115,19 +116,19 @@ def create_gis_engine():
 
 
 if __name__ == "__main__":
-    client = docker.from_env()
-    container = client.containers.run(
-        "postgis/postgis:14-3.4",
-        detach=True,
-        name="geo",
-        environment=ENV_VARS,
-        ports={5432: 5432},
-    )
+    # client = docker.from_env()
+    # container = client.containers.run(
+    #     "postgis/postgis:14-3.4",
+    #     detach=True,
+    #     name="geo",
+    #     environment=ENV_VARS,
+    #     ports={5432: 5432},
+    # )
 
     try:
         setup_pg()
     except Exception as e:
         print(traceback.format_exc())
         print(e)
-        container.stop()
+        # container.stop()
         # container.remove()

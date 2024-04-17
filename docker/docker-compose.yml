@@ -1,0 +1,21 @@
+version: "3"
+services:
+  db:
+    container_name: geos
+    image: postgis/postgis:14-3.4
+    restart: always
+    environment:
+      POSTGRES_USER: nyc
+      POSTGRES_PASSWORD: gis
+      POSTGRES_DB: nyc
+    ports:
+      - "5432:5432"
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: kei@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
