@@ -4,6 +4,7 @@
 # By: K Agajanian
 
 # Standard libraries
+from datetime import datetime, timezone
 
 # External libraries
 
@@ -56,8 +57,22 @@ PW = ENV_VARS["POSTGRES_PASSWORD"]
 PORT = ENV_VARS["MYDB__PORT"]
 
 
+Base = declarative_base()
+
+
+class Trajectory(Base):
+    __tablename__ = "trajectory"
+    id = Column(Integer, primary_key=True)
+    create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
+    updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
+    geom = Column(Geometry("LINESTRINGZM"))
+    feed_item_id = Column(UUID)
+
+
 def setup_pg():
-    engine = create_gis_engine()
+    """Create GIS engine, connect, and create tables."""
+    url = f"{DRIVERNAME}://{USER}:{PW}@{LOCALHOST}:{PORT}/{DB}"
+    engine = create_engine(url, echo=True)
     pg_check(engine=engine)
 
     # # Create Postgis extension & check that it works
@@ -65,28 +80,10 @@ def setup_pg():
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
         conn.execute(text("SELECT postgis_full_version();"))
 
-        create_tables(engine)
+        Trajectory.__table__.create(engine)
 
         conn.commit()
         print("Committed!")
-
-    return None
-
-
-def create_tables(engine):
-    # engine = create_gis_engine()
-    Base = declarative_base()
-
-    class Trajectory(Base):
-        __tablename__ = "nyc"
-        id = Column(Integer, primary_key=True)
-        create_time = Column(TIMESTAMP)
-        updated_time = Column(TIMESTAMP)
-        geom = Column(Geometry("LINESTRINGZM"))
-        feed_item_id = Column(UUID)
-
-    # Trajectory.__table__
-    Trajectory.__table__.create(engine)
 
     return None
 
@@ -100,7 +97,7 @@ def pg_check(engine, max_retries=10):
             with engine.connect():
                 return True
         except Exception as exc:
-            print("Oops that didn't work, lets try again! ")
+            print("Oops that didn't work, lets try again!")
             print(exc)
             exc_ = exc
             time.sleep(5)
@@ -108,27 +105,9 @@ def pg_check(engine, max_retries=10):
     raise exc_
 
 
-def create_gis_engine():
-    url = f"{DRIVERNAME}://{USER}:{PW}@{LOCALHOST}:{PORT}/{DB}"
-    engine = create_engine(url, echo=True)
-
-    return engine
-
-
 if __name__ == "__main__":
-    # client = docker.from_env()
-    # container = client.containers.run(
-    #     "postgis/postgis:14-3.4",
-    #     detach=True,
-    #     name="geo",
-    #     environment=ENV_VARS,
-    #     ports={5432: 5432},
-    # )
-
     try:
         setup_pg()
     except Exception as e:
         print(traceback.format_exc())
         print(e)
-        # container.stop()
-        # container.remove()

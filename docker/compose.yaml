@@ -5,9 +5,9 @@ services:
     image: postgis/postgis:14-3.4
     restart: always
     environment:
-      POSTGRES_USER: nyc
-      POSTGRES_PASSWORD: gis
-      POSTGRES_DB: nyc
+      POSTGRES_USER: nyc # ${POSTGRES_USER}
+      POSTGRES_PASSWORD: gis #${POSTGRES_PASSWORD}
+      POSTGRES_DB: nyc # ${POSTGRES_DB}
     ports:
       - "5432:5432"
   pgadmin:
