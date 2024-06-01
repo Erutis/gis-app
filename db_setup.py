@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 # By: K Agajanian
+# Created: 2/21/24
+# as of 3/6/24 this fucking works!!
 
 # Standard libraries
 from datetime import datetime, timezone
@@ -12,15 +14,7 @@ import uuid
 
 # Internal libraries
 
-# Created: 2/21/24
-# as of 3/6/24 this fucking works
 
-# GeoAlchemy ORM Tutorial
-# https://geoalchemy-2.readthedocs.io/en/latest/orm_tutorial.html
-
-import docker
-import logging
-import os
 import time
 import traceback
 
@@ -30,10 +24,6 @@ from sqlalchemy import (
     Column,
     Integer,
     text,
-    MetaData,
-    Table,
-    ForeignKey,
-    DateTime,
     TIMESTAMP,
     UUID,
 )
@@ -73,8 +63,7 @@ class Trajectory(Base):
 
 def setup_pg():
     """Create GIS engine, connect, and create tables."""
-    url = f"{DRIVERNAME}://{USER}:{PW}@{LOCALHOST}:{PORT}/{DB}"
-    engine = create_engine(url, echo=True)
+    engine = vroom_engine()
     pg_check(engine=engine)
 
     # # Create Postgis extension & check that it works
@@ -107,8 +96,16 @@ def pg_check(engine, max_retries=10):
     raise exc_
 
 
+def vroom_engine():
+    url = f"{DRIVERNAME}://{USER}:{PW}@{LOCALHOST}:{PORT}/{DB}"
+    engine = create_engine(url, echo=True)
+
+    return engine
+
+
 # Still needs fixing
-def insert_sample_data(engine):
+def insert_sample_data():
+    engine = vroom_engine()
     Session = sessionmaker(bind=engine)
     session = Session()
 
