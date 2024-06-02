@@ -5,29 +5,36 @@
 # Created: 4/18/24
 
 # Standard libraries
-from datetime import datetime
+import uuid
+
+# from datetime import datetime
 
 # External libraries
-from geoalchemy2 import Geometry
-from sqlalchemy import Column, create_engine, text, insert
+# from geoalchemy2 import Geometry
+# from sqlalchemy import Column, create_engine, text, insert
+from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
-from db_setup import Trajectory, DRIVERNAME, USER, PW, LOCALHOST, PORT, DB
-
-
-def create_new_data():
-    # connect to engine
-    url = f"{DRIVERNAME}://{USER}:{PW}@{LOCALHOST}:{PORT}/{DB}"
-    engine = create_engine(url, echo=True)
-
-    with engine.connect() as conn:
-        stmt = insert(Trajectory).values(
-            id=1234,
-        )
+from db_setup import Trajectory, vroom_engine
 
 
 def main():
-    pass
+    """Enter sample data into Trajectory table."""
+    engine = vroom_engine()
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    # Generate sample data
+    sample_data = [
+        Trajectory(
+            geom="SRID=4326;LINESTRINGZM(0 0 0 0, 1 1 1 1)",
+            feed_item_id=uuid.uuid4(),
+        )
+        for _ in range(20)
+    ]
+
+    session.add_all(sample_data)
+    session.commit()
 
 
 if __name__ == "__main__":

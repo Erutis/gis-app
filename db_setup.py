@@ -28,7 +28,7 @@ from sqlalchemy import (
     UUID,
 )
 
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base
 
 
 ENV_VARS = {
@@ -103,31 +103,10 @@ def vroom_engine():
     return engine
 
 
-# Still needs fixing
-def insert_sample_data():
-    engine = vroom_engine()
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Generate sample data
-    sample_data = [
-        Trajectory(
-            geom="SRID=4326;LINESTRINGZM(0 0 0 0, 1 1 1 1)",
-            feed_item_id=uuid.uuid4(),
-        )
-        for _ in range(20)
-    ]
-
-    session.add_all(sample_data)
-    session.commit()
-
-
 if __name__ == "__main__":
     try:
         setup_pg()
         print("DB set up!")
-        insert_sample_data()
-        print("Sample data added!")
     except Exception as e:
         print(traceback.format_exc())
         print(e)
