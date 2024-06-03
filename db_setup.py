@@ -8,7 +8,6 @@
 # Standard libraries
 from datetime import datetime, timezone
 
-import uuid
 
 # External libraries
 
@@ -63,7 +62,7 @@ class Trajectory(Base):
 
 def setup_pg():
     """Create GIS engine, connect, and create tables."""
-    engine = vroom_engine()
+    engine = engine_go_vroom()
     pg_check(engine=engine)
 
     # # Create Postgis extension & check that it works
@@ -96,7 +95,7 @@ def pg_check(engine, max_retries=10):
     raise exc_
 
 
-def vroom_engine():
+def engine_go_vroom():
     url = f"{DRIVERNAME}://{USER}:{PW}@{LOCALHOST}:{PORT}/{DB}"
     engine = create_engine(url, echo=True)
 

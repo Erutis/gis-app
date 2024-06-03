@@ -15,12 +15,12 @@ import uuid
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
-from db_setup import Trajectory, vroom_engine
+from db_setup import Trajectory, engine_go_vroom
 
 
 def main():
     """Enter sample data into Trajectory table."""
-    engine = vroom_engine()
+    engine = engine_go_vroom()
     Session = sessionmaker(bind=engine)
     session = Session()
 
