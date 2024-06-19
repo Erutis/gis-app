@@ -5,6 +5,7 @@
 # Created: 4/18/24
 
 # Standard libraries
+import random
 import uuid
 
 # from datetime import datetime
@@ -24,17 +25,35 @@ def main():
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    # Generate sample data
+    # Create rows from sample data
     sample_data = [
         Trajectory(
-            geom="SRID=4326;LINESTRINGZM(0 0 0 0, 1 1 1 1)",
+            geom=f"SRID=4326;LINESTRINGZM({create_sample_linestring()})",
             feed_item_id=uuid.uuid4(),
         )
-        for _ in range(20)
+        for _ in range(2)
     ]
 
     session.add_all(sample_data)
     session.commit()
+
+
+def create_sample_linestring():
+    linestring = ""
+
+    num_of_entries = int(random.uniform(0, 5))
+    time = 0
+
+    for n in range(num_of_entries):
+        lat = round(random.uniform(30, 40), 3)
+        lon = round(random.uniform(-70, -75), 3)
+        alt = round(random.uniform(-1, 1), 2)
+        time = time + int(random.uniform(0, 5))
+        linestring += f"{lon} {lat} {alt} {time},"
+
+    linestring = linestring[:-1]
+    print(linestring[0:10])
+    return linestring
 
 
 if __name__ == "__main__":
