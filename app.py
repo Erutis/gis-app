@@ -7,10 +7,11 @@
 from functools import partial
 
 import uuid
+import json
 
 # External libraries
 from sanic import Sanic, response
-from sanic.response import json
+# from sanic.response import json
 
 from sqlalchemy import select, func, text
 from sqlalchemy.orm import sessionmaker
@@ -61,6 +62,7 @@ def post(request):
 
 
 def parse_data(data):
+    data = json.loads(data)
     feed_item_id = data["feed_item_id"]
     del data["feed_item_id"]
 
