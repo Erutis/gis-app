@@ -10,7 +10,7 @@ import uuid
 import json
 
 # External libraries
-from sanic import Sanic, response
+from sanic import Sanic, response, HTTPResponse
 # from sanic.response import json
 
 from sqlalchemy import select, func, text
@@ -53,12 +53,13 @@ def post(request):
     try:
         with session as s:
             s.add_all(gps_data)
+            s.commit()
 
-        return response(status=202)
+        return HTTPResponse(status=202)
 
     except Exception as e:
         print(e)
-        return response(status=400)
+        return HTTPResponse(status=400)
 
 
 def parse_data(data):
