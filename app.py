@@ -6,11 +6,13 @@
 # Standard libraries
 from functools import partial
 
+import uuid
+
 # External libraries
 from sanic import Sanic, response
 from sanic.response import json
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
@@ -29,15 +31,47 @@ def get(request):
 
     q = select(Trajectory, func.ST_AsText(Trajectory.geom).label("geom")).where(
         Trajectory.id == 2
-    )
+    )  # select
+    # q = text("SELECT id, ST_AsText(geom), feed_item_id FROM trajectory WHERE id = 2") # text
 
     with session as s:
         trajs = s.execute(q).scalars().one_or_none()
 
-    result = trajs.to_dict()
-    print(trajs)
-    print(result)
-    return response.json(result)
+    return response.json(trajs.to_dict())  # for select stmt
+    return response.json(trajs)  # for text stmt
+
+
+@app.post("/")
+def post(request, data):
+    engine = engine_go_vroom()
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    gps_data = parse_data(data)
+
+    try:
+        with session as s:
+            s.add_all(gps_data)
+
+        return response(status=202)
+
+    except Exception as e:
+        print(e)
+        return response(status=400)
+
+
+def parse_data(data):
+    feed_item_id = data["feed_item_id"]
+    del data["feed_item_id"]
+
+    # Create rows from sample data
+    gps_data = [
+        Trajectory(
+            geom=f"SRID=4326;LINESTRINGZM({data})",
+            feed_item_id=feed_item_id,
+        )
+    ]
+    return gps_data
 
 
 if __name__ == "__main__":
