@@ -33,12 +33,14 @@ def get(request):
     q = select(Trajectory, func.ST_AsText(Trajectory.geom).label("geom")).where(
         Trajectory.id == 2
     )  # select
-    # q = text("SELECT id, ST_AsText(geom), feed_item_id FROM trajectory WHERE id = 2") # text
+    q = text(
+        "SELECT ST_AsText(geom), feed_item_id FROM trajectory WHERE id = 2"
+    )  # text
 
     with session as s:
         trajs = s.execute(q).scalars().one_or_none()
 
-    return response.json(trajs.to_dict())  # for select stmt
+    # return response.json(trajs.to_dict())  # for select stmt
     return response.json(trajs)  # for text stmt
 
 
