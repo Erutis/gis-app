@@ -4,12 +4,13 @@
 # By: K Agajanian
 
 # Standard libraries
+from functools import partial
 
 # External libraries
-from sanic import Sanic
+from sanic import Sanic, response
 from sanic.response import json
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
@@ -26,12 +27,17 @@ def get(request):
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    q = select(Trajectory)
-    with session as s:
-        trajs = s.execute(q).scalars().all()
-        print(trajs)
+    q = select(Trajectory, func.ST_AsText(Trajectory.geom).label("geom")).where(
+        Trajectory.id == 2
+    )
 
-    return trajs
+    with session as s:
+        trajs = s.execute(q).scalars().one_or_none()
+
+    result = trajs.to_dict()
+    print(trajs)
+    print(result)
+    return response.json(result)
 
 
 if __name__ == "__main__":

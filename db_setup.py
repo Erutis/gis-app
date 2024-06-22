@@ -8,6 +8,8 @@
 # Standard libraries
 from datetime import datetime, timezone
 
+import enum
+
 
 # External libraries
 
@@ -22,12 +24,14 @@ from sqlalchemy import (
     create_engine,
     Column,
     Integer,
+    schema,
     text,
     TIMESTAMP,
     UUID,
 )
 
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm.state import InstanceState
 
 
 ENV_VARS = {
@@ -53,19 +57,41 @@ Base = declarative_base()
 
 class Trajectory(Base):
     __tablename__ = "trajectory"
+    # __table_args__ = {"schema": "gps"}
     id = Column(Integer, primary_key=True)
     create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
     updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
     geom = Column(Geometry("LINESTRINGZM"))
     feed_item_id = Column(UUID)
 
+    def to_dict(self):
+        d = {}
+
+        for field, value in self.__dict__.items():
+            if any(
+                (
+                    isinstance(value, InstanceState),
+                    isinstance(value, list),
+                )
+            ):
+                continue
+            if isinstance(value, (int, float, bool, str, type(None))):
+                d[field] = value
+            elif isinstance(value, enum.Enum):
+                d[field] = value.name
+            else:
+                d[field] = str(value)
+
+        return d
+
 
 def setup_pg():
     """Create GIS engine, connect, and create tables."""
+    # Start sqlalchemy engine & wait for connection
     engine = engine_go_vroom()
     pg_check(engine=engine)
 
-    # # Create Postgis extension & check that it works
+    # # Create Postgis extension, Trajectory table, and commit
     with engine.connect() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
         conn.execute(text("SELECT postgis_full_version();"))

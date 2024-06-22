@@ -25,17 +25,22 @@ def main():
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    # Create rows from sample data
-    sample_data = [
-        Trajectory(
-            geom=f"SRID=4326;LINESTRINGZM({create_sample_linestring()})",
-            feed_item_id=uuid.uuid4(),
-        )
-        for _ in range(2)
-    ]
+    for _ in range(5):
+        try:
+            # Create rows from sample data
+            sample_data = [
+                Trajectory(
+                    geom=f"SRID=4326;LINESTRINGZM({create_sample_linestring()})",
+                    feed_item_id=uuid.uuid4(),
+                )
+            ]
 
-    session.add_all(sample_data)
-    session.commit()
+            session.add_all(sample_data)
+            session.commit()
+
+        except Exception as e:
+            print(e)
+            continue
 
 
 def create_sample_linestring():
@@ -45,15 +50,19 @@ def create_sample_linestring():
     time = 0
 
     for n in range(num_of_entries):
-        lat = round(random.uniform(30, 40), 3)
-        lon = round(random.uniform(-70, -75), 3)
-        alt = round(random.uniform(-1, 1), 2)
+        lon = round(random.uniform(-70, -75), 3)  # x coordinate
+        lat = round(random.uniform(40, 43), 3)  # y coordinate
+        alt = round(random.uniform(-1, 1), 0)
         time = time + int(random.uniform(0, 5))
         linestring += f"{lon} {lat} {alt} {time},"
 
     linestring = linestring[:-1]
-    print(linestring[0:10])
+    print(linestring)
     return linestring
+
+
+def create_specific_linestring():
+    pass
 
 
 if __name__ == "__main__":
