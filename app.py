@@ -42,12 +42,12 @@ def get(request):
 
 
 @app.post("/")
-def post(request, data):
+def post(request):
     engine = engine_go_vroom()
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    gps_data = parse_data(data)
+    gps_data = parse_data(request.body)
 
     try:
         with session as s:
@@ -63,6 +63,8 @@ def post(request, data):
 def parse_data(data):
     feed_item_id = data["feed_item_id"]
     del data["feed_item_id"]
+
+    data = data["gps_data"]
 
     # Create rows from sample data
     gps_data = [
