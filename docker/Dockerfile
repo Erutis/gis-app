@@ -1,12 +1,19 @@
-FROM python
+FROM python:3.11-slim-bullseye
 
-COPY ./ .
+# Set environment variables
+# ENV POSTGRES_USER=nyc
+# ENV POSTGRES_PASSWORD=gis
+# ENV POSTGRES_DB=nyc
 
-ENV POSTGRES_USER nyc
-ENV POSTGRES_PASSWORD gis
-ENV POSTGRES_DB nyc
+# Set the working directory in the container
+WORKDIR /app
 
-RUN pip install -r ../requirements.txt
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-CMD [python db_setup.py]
 
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r docker/requirements.txt
+
+# Run db_setup.py when the container launches
+CMD ["python", "app/db_setup.py"]
