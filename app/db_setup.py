@@ -35,7 +35,7 @@ from sqlalchemy.orm.state import InstanceState
 
 
 ENV_VARS = {
-    "MYDB__HOST": "localhost",
+    "POSTGRES_HOST": "db",
     "MYDB__DATABASE": "nyc",
     "POSTGRES_USER": "nyc",
     "MYDB__PORT": 5432,
@@ -44,7 +44,7 @@ ENV_VARS = {
     "platform": "linux/amd64",
 }
 
-LOCALHOST = ENV_VARS["MYDB__HOST"]
+POSTGRES_HOST = ENV_VARS["POSTGRES_HOST"]
 DB = ENV_VARS["MYDB__DATABASE"]
 DRIVERNAME = ENV_VARS["MYDB__DRIVERNAME"]
 USER = ENV_VARS["POSTGRES_USER"]
@@ -122,7 +122,7 @@ def pg_check(engine, max_retries=10):
 
 
 def engine_go_vroom():
-    url = f"{DRIVERNAME}://{USER}:{PW}@{LOCALHOST}:{PORT}/{DB}"
+    url = f"{DRIVERNAME}://{USER}:{PW}@{POSTGRES_HOST}:{PORT}/{DB}"
     engine = create_engine(url, echo=True)
 
     return engine

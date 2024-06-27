@@ -10,9 +10,17 @@ services:
       POSTGRES_DB: nyc # ${POSTGRES_DB}
     ports:
       - "5432:5432"
+
+  app:
+    container_name: thing1
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    environment:
+      POSTGRES_USER: nyc # ${POSTGRES_USER}
+      POSTGRES_PASSWORD: gis #${POSTGRES_PASSWORD}
+      POSTGRES_DB: nyc # ${POSTGRES_DB}
+      POSTGRES_HOST: db
   # pgadmin: # Not necessary since using SRID 4326, but keeping it anyway
   #   container_name: pgadmin4_container
   #   image: dpage/pgadmin4
