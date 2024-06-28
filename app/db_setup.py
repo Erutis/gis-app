@@ -9,16 +9,12 @@
 from datetime import datetime, timezone
 
 import enum
-
-
-# External libraries
-
-# Internal libraries
-
-
+import os
 import time
 import traceback
 
+
+# External libraries
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     create_engine,
@@ -33,24 +29,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm.state import InstanceState
 
-
-ENV_VARS = {
-    "POSTGRES_HOST": "db",
-    "MYDB__DATABASE": "nyc",
-    "POSTGRES_USER": "nyc",
-    "MYDB__PORT": 5432,
-    "MYDB__DRIVERNAME": "postgresql",
-    "POSTGRES_PASSWORD": "gis",
-    "platform": "linux/amd64",
-}
-
-POSTGRES_HOST = ENV_VARS["POSTGRES_HOST"]
-DB = ENV_VARS["MYDB__DATABASE"]
-DRIVERNAME = ENV_VARS["MYDB__DRIVERNAME"]
-USER = ENV_VARS["POSTGRES_USER"]
-PW = ENV_VARS["POSTGRES_PASSWORD"]
-PORT = ENV_VARS["MYDB__PORT"]
-
+# Internal libraries
 
 Base = declarative_base()
 
@@ -122,7 +101,15 @@ def pg_check(engine, max_retries=10):
 
 
 def engine_go_vroom():
-    url = f"{DRIVERNAME}://{USER}:{PW}@{POSTGRES_HOST}:{PORT}/{DB}"
+    USER = os.getenv("POSTGRES_USER", "nyc")
+    PW = os.getenv("POSTGRES_PASSWORD", "gis")
+    DB = os.getenv("POSTGRES_DB", "nyc")
+    HOST = os.getenv(
+        "POSTGRES_HOST", "localhost"
+    )  # this localhost only applies if running script locally
+    DRIVERNAME = os.getenv("POSTGRES_DRIVERNAME", "postgresql")
+    PORT = os.getenv("PORT", "5432")
+    url = f"{DRIVERNAME}://{USER}:{PW}@{HOST}:{PORT}/{DB}"
     engine = create_engine(url, echo=True)
 
     return engine

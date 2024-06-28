@@ -1,10 +1,5 @@
 FROM python:3.11-slim-bullseye
 
-# Set environment variables
-# ENV POSTGRES_USER=nyc
-# ENV POSTGRES_PASSWORD=gis
-# ENV POSTGRES_DB=nyc
-
 # Set the working directory in the container
 WORKDIR /app
 
