@@ -51,7 +51,7 @@ def main():
 def create_sample_linestring(area):
     linestring = ""
 
-    num_of_entries = int(random.uniform(0, 5))
+    num_of_entries = int(random.uniform(2, 5))  # must have at least 2
     time = 0
 
     for n in range(num_of_entries):
