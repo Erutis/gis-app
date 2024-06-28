@@ -35,7 +35,7 @@ def main():
             # Create rows from sample data
             sample_data = [
                 Trajectory(
-                    geom=f"SRID=4326;LINESTRINGZM({create_sample_linestring(northeast)})",
+                    geom=f"SRID=4326;LINESTRINGZM({create_sample_linestring(central_park)})",
                     feed_item_id=uuid.uuid4(),
                 )
             ]
@@ -51,18 +51,22 @@ def main():
 def create_sample_linestring(area):
     linestring = ""
 
-    num_of_entries = int(random.uniform(2, 5))  # must have at least 2
+    num_of_entries = int(random.uniform(1, 5))  # must have at least 2
     time = 0
 
     for n in range(num_of_entries):
         lon = round(random.uniform(area["lon"][0], area["lon"][1]), 3)  # x coordinate
         lat = round(random.uniform(area["lat"][0], area["lat"][1]), 3)  # y coordinate
-        alt = round(random.uniform(-1, 1), 0)
-        time = time + int(random.uniform(0, 5))
+        alt = round(random.uniform(-1, 1), 0)  # altitude
+        time = time + int(random.uniform(0, 5))  # time
         linestring += f"{lon} {lat} {alt} {time},"
 
+        # Linestring hates being alone and I don't wanna deal with POINTs
+        if num_of_entries <= 1:
+            linestring += linestring
+
     linestring = linestring[:-1]
-    print(linestring)
+    print(f"HERE'S MY LINESTRING BETCH: {linestring}")
     return linestring
 
 

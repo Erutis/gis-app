@@ -36,7 +36,7 @@ Base = declarative_base()
 
 class Trajectory(Base):
     __tablename__ = "trajectory"
-    # __table_args__ = {"schema": "gps"}
+    __table_args__ = {"schema": "gps"}
     id = Column(Integer, primary_key=True)
     create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
     updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
@@ -70,11 +70,15 @@ def setup_pg():
     engine = engine_go_vroom()
     pg_check(engine=engine)
 
-    # # Create Postgis extension, Trajectory table, and commit
+    # # Create Postgis extension and new schema
     with engine.connect() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
         conn.execute(text("SELECT postgis_full_version();"))
+        conn.execute(schema.CreateSchema("gps"))
+        conn.commit()
 
+    # Create Trajectory table in gps schema
+    with engine.connect() as conn:
         Trajectory.__table__.create(engine)
 
         conn.commit()
