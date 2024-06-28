@@ -4,9 +4,6 @@
 # By: K Agajanian
 
 # Standard libraries
-from functools import partial
-
-import uuid
 import json
 
 # External libraries
@@ -21,7 +18,7 @@ from db_setup import engine_go_vroom
 from db_setup import Trajectory
 
 
-app = Sanic("vrgis-app")
+app = Sanic("gis-app")
 
 
 @app.route("/")
@@ -30,11 +27,12 @@ def get(request):
     Session = sessionmaker(bind=engine)
     session = Session()
 
+    # TODO: Currently hard-coded to get a single trajectory
     q = select(Trajectory, func.ST_AsText(Trajectory.geom).label("geom")).where(
         Trajectory.id == 2
     )  # select
     q = text(
-        "SELECT ST_AsText(geom), feed_item_id FROM trajectory WHERE id = 2"
+        "SELECT ST_AsText(geom), feed_item_id FROM gps.trajectory WHERE id = 2"
     )  # text
 
     with session as s:

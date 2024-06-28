@@ -5,21 +5,19 @@
 # Created: 4/18/24
 
 # Standard libraries
-import os
 import random
 import uuid
 
 # from datetime import datetime
 
 # External libraries
-# from geoalchemy2 import Geometry
-# from sqlalchemy import Column, create_engine, text, insert
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
 from db_setup import Trajectory, engine_go_vroom
 
 
+# Pre-determined areas for random data generation
 central_park = {"lon": (-73.973, -73.958), "lat": (40.765, 40.800)}
 northeast = {"lon": (-70, -75), "lat": (40, 43)}
 

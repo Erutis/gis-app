@@ -3,7 +3,6 @@
 #
 # By: K Agajanian
 # Created: 2/21/24
-# as of 3/6/24 this fucking works!!
 
 # Standard libraries
 from datetime import datetime, timezone
