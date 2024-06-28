@@ -1,21 +1,27 @@
+
 version: "3"
+x-common-variables: &common-variables
+      POSTGRES_USER: nyc
+      POSTGRES_PASSWORD: gis #${POSTGRES_PASSWORD}
+      POSTGRES_DB: nyc
+      POSTGRES_HOST: db
+      POSTGRES_DRIVERNAME: postgresql
+      PORT: 5432
+
+
 services:
   db:
-    container_name: geos
+    container_name: db
     image: postgis/postgis:14-3.4
     restart: always
-    environment:
-      POSTGRES_USER: nyc # ${POSTGRES_USER}
-      POSTGRES_PASSWORD: gis #${POSTGRES_PASSWORD}
-      POSTGRES_DB: nyc # ${POSTGRES_DB}
+    environment: *common-variables
     ports:
       - "5432:5432"
-  pgadmin: # Not necessary since using SRID 4326, but keeping it anyway
-    container_name: pgadmin4_container
-    image: dpage/pgadmin4
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: kei@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    ports:
-      - "5050:80"
+
+  db-setup: # create Trajectory table
+    container_name: db-setup
+    environment: *common-variables
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+

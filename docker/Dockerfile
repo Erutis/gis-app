@@ -1,12 +1,14 @@
-FROM python
+FROM python:3.11-slim-bullseye
 
-COPY ./ .
+# Set the working directory in the container
+WORKDIR /app
 
-ENV POSTGRES_USER nyc
-ENV POSTGRES_PASSWORD gis
-ENV POSTGRES_DB nyc
+# Copy the current directory contents into the container at /app
+COPY ../app .
 
-RUN pip install -r requirements.txt
 
-CMD [python db_setup.py]
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Run db_setup.py when the container launches
+CMD ["python", "db_setup.py"]
