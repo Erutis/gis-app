@@ -39,7 +39,7 @@ class Trajectory(Base):
     id = Column(Integer, primary_key=True)
     create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
     updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
-    geom = Column(Geometry("LINESTRINGZM"))
+    geom = Column(Geometry("GEOMETRYZM"))
     feed_item_id = Column(UUID)
 
     def to_dict(self):

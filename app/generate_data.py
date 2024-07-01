@@ -31,9 +31,11 @@ def main():
     for _ in range(5):
         try:
             # Create rows from sample data
+            linestring, geom_type = create_sample_linestring(central_park)
+
             sample_data = [
                 Trajectory(
-                    geom=f"SRID=4326;LINESTRINGZM({create_sample_linestring(central_park)})",
+                    geom=f"SRID=4326;{geom_type}({linestring})",
                     feed_item_id=uuid.uuid4(),
                 )
             ]
@@ -59,13 +61,15 @@ def create_sample_linestring(area):
         time = time + int(random.uniform(0, 5))  # time
         linestring += f"{lon} {lat} {alt} {time},"
 
-        # Linestring hates being alone and I don't wanna deal with POINTs
+        # If only one item in linestring, geom_type is a POINT, else LINESTRING
         if num_of_entries <= 1:
-            linestring += linestring
+            geom_type = "POINTZM"
+        else:
+            geom_type = "LINESTRINGZM"
 
     linestring = linestring[:-1]
     print(f"HERE'S MY LINESTRING BETCH: {linestring}")
-    return linestring
+    return linestring, geom_type
 
 
 if __name__ == "__main__":
