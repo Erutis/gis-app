@@ -67,8 +67,9 @@ def create_sample_linestring(area):
         else:
             geom_type = "LINESTRINGZM"
 
+    # Remove trailing comma at end of string
     linestring = linestring[:-1]
-    print(f"HERE'S MY LINESTRING BETCH: {linestring}")
+
     return linestring, geom_type
 
 

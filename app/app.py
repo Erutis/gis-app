@@ -30,10 +30,8 @@ def get(request):
     # TODO: Currently hard-coded to get a single trajectory
     q = select(Trajectory, func.ST_AsText(Trajectory.geom).label("geom")).where(
         Trajectory.id == 2
-    )  # select
-    q = text(
-        "SELECT ST_AsText(geom), feed_item_id FROM gps.trajectory WHERE id = 2"
-    )  # text
+    )
+    q = text("SELECT ST_AsText(geom), feed_item_id FROM gps.trajectory WHERE id = 2")
 
     with session as s:
         trajs = s.execute(q).scalars().one_or_none()
@@ -65,7 +63,6 @@ def post(request):
 def parse_data(data):
     data = json.loads(data)
     feed_item_id = data["feed_item_id"]
-    del data["feed_item_id"]
 
     data = data["gps_data"]
 
