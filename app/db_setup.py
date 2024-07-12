@@ -6,6 +6,7 @@
 
 # Standard libraries
 from datetime import datetime, timezone
+from typing import Optional
 
 import enum
 import os
@@ -18,14 +19,15 @@ from geoalchemy2 import Geometry
 from sqlalchemy import (
     create_engine,
     Column,
-    Integer,
+    ForeignKey,
     schema,
+    String,
     text,
     TIMESTAMP,
     UUID,
 )
 
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.orm.state import InstanceState
 
 # Internal libraries
@@ -33,14 +35,11 @@ from sqlalchemy.orm.state import InstanceState
 Base = declarative_base()
 
 
-class Trajectory(Base):
-    __tablename__ = "trajectory"
-    __table_args__ = {"schema": "gps"}
-    id = Column(Integer, primary_key=True)
+class GISBase(Base):
+    __abstract__ = True
+    id = Column(UUID, primary_key=True)
     create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
     updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
-    geom = Column(Geometry("GEOMETRYZM"))
-    feed_item_id = Column(UUID)
 
     def to_dict(self):
         d = {}
@@ -63,6 +62,24 @@ class Trajectory(Base):
         return d
 
 
+class Project(GISBase):
+    __tablename__ = "project"
+    __tableargs__ = {"schema": "gps"}
+    name = Column(String)
+
+    trajectories = relationship("Trajectory", back_populates="project")
+
+
+class Trajectory(GISBase):
+    __tablename__ = "trajectory"
+    __table_args__ = {"schema": "gps"}
+    geom = Column(Geometry("GEOMETRYZM"))
+    feed_item_id = Column(UUID)
+    project_id = Column(ForeignKey(Project.id))
+
+    project = relationship("Project", back_populates="trajectory")
+
+
 def setup_pg():
     """Create GIS engine, connect, and create tables."""
     # Start sqlalchemy engine & wait for connection
@@ -78,6 +95,7 @@ def setup_pg():
 
     # Create Trajectory table in gps schema
     with engine.connect() as conn:
+        Project.__table__.create(engine)
         Trajectory.__table__.create(engine)
 
         conn.commit()

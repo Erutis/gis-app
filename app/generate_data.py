@@ -14,7 +14,7 @@ import uuid
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
-from db_setup import Trajectory, engine_go_vroom
+from db_setup import Trajectory, Project, engine_go_vroom
 
 
 # Pre-determined areas for random data generation
@@ -33,10 +33,16 @@ def main():
             # Create rows from sample data
             linestring, geom_type = create_sample_linestring(central_park)
 
+            project = Project(name="I am proj")
+
+            session.add(project)
+            session.commit()
+
             sample_data = [
                 Trajectory(
                     geom=f"SRID=4326;{geom_type}({linestring})",
                     feed_item_id=uuid.uuid4(),
+                    project_id=project.id,
                 )
             ]
 
