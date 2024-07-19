@@ -7,6 +7,7 @@
 # Standard libraries
 from datetime import datetime, timezone
 from typing import Optional
+from uuid import uuid4
 
 import enum
 import os
@@ -37,7 +38,9 @@ Base = declarative_base()
 
 class GISBase(Base):
     __abstract__ = True
-    id = Column(UUID, primary_key=True)
+    id = Column(
+        UUID, primary_key=True, nullable=False, index=True, default=lambda: str(uuid4())
+    )
     create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
     updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
 
@@ -64,10 +67,8 @@ class GISBase(Base):
 
 class Project(GISBase):
     __tablename__ = "project"
-    __tableargs__ = {"schema": "gps"}
+    __table_args__ = {"schema": "gps"}
     name = Column(String)
-
-    trajectories = relationship("Trajectory", back_populates="project")
 
 
 class Trajectory(GISBase):
@@ -76,8 +77,6 @@ class Trajectory(GISBase):
     geom = Column(Geometry("GEOMETRYZM"))
     feed_item_id = Column(UUID)
     project_id = Column(ForeignKey(Project.id))
-
-    project = relationship("Project", back_populates="trajectory")
 
 
 def setup_pg():
@@ -97,6 +96,7 @@ def setup_pg():
     with engine.connect() as conn:
         Project.__table__.create(engine)
         Trajectory.__table__.create(engine)
+        Trajectory.project = relationship("Project", back_populates="trajectory")
 
         conn.commit()
         print("Committed!")
@@ -125,9 +125,7 @@ def engine_go_vroom():
     USER = os.getenv("POSTGRES_USER", "nyc")
     PW = os.getenv("POSTGRES_PASSWORD", "gis")
     DB = os.getenv("POSTGRES_DB", "nyc")
-    HOST = os.getenv(
-        "POSTGRES_HOST", "localhost"
-    )  # this localhost only applies if running script locally
+    HOST = os.getenv("POSTGRES_HOST", "localhost")
     DRIVERNAME = os.getenv("POSTGRES_DRIVERNAME", "postgresql")
     PORT = os.getenv("PORT", "5432")
     url = f"{DRIVERNAME}://{USER}:{PW}@{HOST}:{PORT}/{DB}"

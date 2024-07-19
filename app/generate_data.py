@@ -33,7 +33,7 @@ def main():
             # Create rows from sample data
             linestring, geom_type = create_sample_linestring(central_park)
 
-            project = Project(name="I am proj")
+            project = Project(name="Project A")
 
             session.add(project)
             session.commit()
