@@ -20,7 +20,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 # Internal libraries
-from tables import Trajectory, Project
+from tables import Trajectory, Project, FeedItem
 
 
 def setup_pg():
@@ -39,8 +39,10 @@ def setup_pg():
     # Create Trajectory table in gps schema
     with engine.connect() as conn:
         Project.__table__.create(engine)
+        FeedItem.__table__.create(engine)
         Trajectory.__table__.create(engine)
         Trajectory.project = relationship("Project", back_populates="trajectory")
+        Trajectory.feed_item = relationship("FeedItem", back_populates="trajectory")
 
         conn.commit()
         print("Committed!")

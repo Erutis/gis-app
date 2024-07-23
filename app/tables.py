@@ -19,6 +19,7 @@ from geoalchemy2 import Geometry
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.orm.state import InstanceState
 from sqlalchemy import (
+    CheckConstraint,
     create_engine,
     Column,
     ForeignKey,
@@ -69,9 +70,25 @@ class Project(GISBase):
     name = Column(String)
 
 
+class FeedItem(GISBase):
+    __tablename__ = "feed_item"
+    __table_args__ = {"schema": "gps"}
+    name = Column(String)
+
+
 class Trajectory(GISBase):
     __tablename__ = "trajectory"
-    __table_args__ = {"schema": "gps"}
+    __table_args__ = (
+        CheckConstraint(
+            "feed_item_id IS NOT NULL OR project_id IS NOT NULL",
+            name="check_feed_item_id_or_project_id_not_null",
+        ),
+        CheckConstraint(
+            "NOT (feed_item_id IS NOT NULL AND project_id IS NOT NULL)",
+            name="check_only_one_fk_not_null",
+        ),
+        {"schema": "gps"},
+    )
     geom = Column(Geometry("GEOMETRYZM"))
-    feed_item_id = Column(UUID)
+    feed_item_id = Column(ForeignKey(FeedItem.id))
     project_id = Column(ForeignKey(Project.id))
