@@ -2,19 +2,16 @@
 # -*- coding: utf-8 -*-
 #
 # By: K Agajanian
-# Created: 4/18/24
 
 # Standard libraries
 import random
 import uuid
 
-# from datetime import datetime
-
 # External libraries
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
-from db_setup import Trajectory, Project, engine_go_vroom
+from db_setup import engine_go_vroom, Feed, FeedItem, Trajectory
 
 
 # Pre-determined areas for random data generation
@@ -33,16 +30,16 @@ def main():
             # Create rows from sample data
             linestring, geom_type = create_sample_linestring(central_park)
 
-            project = Project(name="Project A")
+            fk = Feed(name="Feed A")
 
-            session.add(project)
+            session.add(fk)
             session.commit()
 
             sample_data = [
                 Trajectory(
                     geom=f"SRID=4326;{geom_type}({linestring})",
-                    feed_item_id=uuid.uuid4(),
-                    project_id=project.id,
+                    feed_item_id=fk.id,
+                    feed_id=fk.id,
                 )
             ]
 

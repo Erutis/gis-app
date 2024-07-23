@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 #
 # By: K Agajanian
-# Created: 2/21/24
 
 # Standard libraries
 import os
@@ -20,7 +19,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 # Internal libraries
-from tables import Trajectory, Project, FeedItem
+from tables import Feed, FeedItem, Trajectory
 
 
 def setup_pg():
@@ -38,10 +37,10 @@ def setup_pg():
 
     # Create Trajectory table in gps schema
     with engine.connect() as conn:
-        Project.__table__.create(engine)
+        Feed.__table__.create(engine)
         FeedItem.__table__.create(engine)
         Trajectory.__table__.create(engine)
-        Trajectory.project = relationship("Project", back_populates="trajectory")
+        Trajectory.feed = relationship("Feed", back_populates="trajectory")
         Trajectory.feed_item = relationship("FeedItem", back_populates="trajectory")
 
         conn.commit()
