@@ -12,12 +12,11 @@ import enum
 
 # External libraries
 from geoalchemy2 import Geometry
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, mapped_column
 from sqlalchemy.orm.state import InstanceState
 from sqlalchemy.sql import or_, and_, not_
 from sqlalchemy import (
     CheckConstraint,
-    Column,
     ForeignKey,
     String,
     TIMESTAMP,
@@ -31,11 +30,11 @@ Base = declarative_base()
 
 class GISBase(Base):
     __abstract__ = True
-    id = Column(
+    id = mapped_column(
         UUID, primary_key=True, nullable=False, index=True, default=lambda: str(uuid4())
     )
-    create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
-    updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
+    create_time = mapped_column(TIMESTAMP, default=datetime.now(timezone.utc))
+    updated_time = mapped_column(TIMESTAMP, default=datetime.now(timezone.utc))
 
     def to_dict(self):
         d = {}
@@ -61,30 +60,36 @@ class GISBase(Base):
 class Feed(GISBase):
     __tablename__ = "feed"
     __table_args__ = {"schema": "gps"}
-    name = Column(String)
+    name = mapped_column(String)
 
 
 class FeedItem(GISBase):
     __tablename__ = "feed_item"
     __table_args__ = {"schema": "gps"}
-    name = Column(String)
+    name = mapped_column(String)
 
 
 class Trajectory(GISBase):
     __tablename__ = "trajectory"
     __table_args__ = (
         CheckConstraint(
-            or_(Column("feed_item_id").isnot(None), Column("feed_id").isnot(None)),
+            or_(
+                mapped_column("feed_item_id").isnot(None),
+                mapped_column("feed_id").isnot(None),
+            ),
             name="check_feed_item_id_or_feed_id_not_null",
         ),
         CheckConstraint(
             not_(
-                and_(Column("feed_item_id").isnot(None), Column("feed_id").isnot(None))
+                and_(
+                    mapped_column("feed_item_id").isnot(None),
+                    mapped_column("feed_id").isnot(None),
+                )
             ),
             name="check_only_one_fk_not_null",
         ),
         {"schema": "gps"},
     )
-    geom = Column(Geometry("GEOMETRYZM"))
-    feed_item_id = Column(ForeignKey(FeedItem.id))
-    feed_id = Column(ForeignKey(Feed.id))
+    geom = mapped_column(Geometry("GEOMETRYZM"))
+    feed_item_id = mapped_column(ForeignKey(FeedItem.id))
+    feed_id = mapped_column(ForeignKey(Feed.id))
