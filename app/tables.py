@@ -14,6 +14,7 @@ import enum
 from geoalchemy2 import Geometry
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm.state import InstanceState
+from sqlalchemy.sql import or_, and_, not_
 from sqlalchemy import (
     CheckConstraint,
     Column,
@@ -73,11 +74,13 @@ class Trajectory(GISBase):
     __tablename__ = "trajectory"
     __table_args__ = (
         CheckConstraint(
-            "feed_item_id IS NOT NULL OR feed_id IS NOT NULL",
+            or_(Column("feed_item_id").isnot(None), Column("feed_id").isnot(None)),
             name="check_feed_item_id_or_feed_id_not_null",
         ),
         CheckConstraint(
-            "NOT (feed_item_id IS NOT NULL AND feed_id IS NOT NULL)",
+            not_(
+                and_(Column("feed_item_id").isnot(None), Column("feed_id").isnot(None))
+            ),
             name="check_only_one_fk_not_null",
         ),
         {"schema": "gps"},
