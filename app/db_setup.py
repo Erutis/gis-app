@@ -76,11 +76,21 @@ def setup_pg():
         conn.execute(schema.CreateSchema("gps"))
         conn.commit()
 
+<<<<<<< Updated upstream
     # Create Trajectory table in gps schema
     with engine.connect() as conn:
         Trajectory.__table__.create(engine)
+=======
+        # Create Trajectory table in gps schema
+        # with engine.connect() as conn:
+        #     Feed.__table__.create(engine)
+        #     FeedItem.__table__.create(engine)
+        #     Trajectory.__table__.create(engine)
+        #     Trajectory.feed = relationship("Feed", back_populates="trajectory")
+        #     Trajectory.feed_item = relationship("FeedItem", back_populates="trajectory")
+>>>>>>> Stashed changes
 
-        conn.commit()
+        #     conn.commit()
         print("Committed!")
 
     return None

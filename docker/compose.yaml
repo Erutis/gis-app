@@ -1,5 +1,4 @@
 
-version: "3"
 x-common-variables: &common-variables
       POSTGRES_USER: nyc
       POSTGRES_PASSWORD: gis #${POSTGRES_PASSWORD}
@@ -18,10 +17,21 @@ services:
     ports:
       - "5432:5432"
 
-  db-setup: # create Trajectory table
+  db-setup: # create extensions & schemas
     container_name: db-setup
     environment: *common-variables
     build:
       context: ..
       dockerfile: docker/Dockerfile
 
+  alembic:
+    container_name: alembic-setup
+    image: python:3.11-slim-bullseye
+    environment: *common-variables
+    depends_on:
+      - db
+    command: >
+      /bin/sh -c "
+      alembic init alembic &&
+      alembic revision --autogenerate -m 'Initial migration' &&
+      alembic upgrade head"
