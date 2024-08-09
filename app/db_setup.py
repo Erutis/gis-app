@@ -76,11 +76,6 @@ def setup_pg():
         conn.execute(schema.CreateSchema("gps"))
         conn.commit()
 
-<<<<<<< Updated upstream
-    # Create Trajectory table in gps schema
-    with engine.connect() as conn:
-        Trajectory.__table__.create(engine)
-=======
         # Create Trajectory table in gps schema
         # with engine.connect() as conn:
         #     Feed.__table__.create(engine)
@@ -88,7 +83,6 @@ def setup_pg():
         #     Trajectory.__table__.create(engine)
         #     Trajectory.feed = relationship("Feed", back_populates="trajectory")
         #     Trajectory.feed_item = relationship("FeedItem", back_populates="trajectory")
->>>>>>> Stashed changes
 
         #     conn.commit()
         print("Committed!")
@@ -117,9 +111,7 @@ def engine_go_vroom():
     USER = os.getenv("POSTGRES_USER", "nyc")
     PW = os.getenv("POSTGRES_PASSWORD", "gis")
     DB = os.getenv("POSTGRES_DB", "nyc")
-    HOST = os.getenv(
-        "POSTGRES_HOST", "localhost"
-    )  # this localhost only applies if running script locally
+    HOST = os.getenv("POSTGRES_HOST", "localhost")
     DRIVERNAME = os.getenv("POSTGRES_DRIVERNAME", "postgresql")
     PORT = os.getenv("PORT", "5432")
     url = f"{DRIVERNAME}://{USER}:{PW}@{HOST}:{PORT}/{DB}"

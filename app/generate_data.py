@@ -36,8 +36,8 @@ def main():
             sample_data = [
                 Trajectory(
                     geom=f"SRID=4326;{geom_type}({linestring})",
-                    # feed_item_id=fk.id,
-                    feed_id=fk.id,
+                    feed_item_id=uuid.uuid4(),
+                    feed_id=uuid.uuid4(),
                 )
             ]
 
