@@ -3,9 +3,6 @@ name: DB Change Checks
 on:
   push
 
-
-
-
 jobs:
   check-sql-schema-changes:
     runs-on: github-dev-runner
