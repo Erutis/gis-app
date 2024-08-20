@@ -57,12 +57,6 @@ class GISBase(Base):
         return d
 
 
-class Feed(GISBase):
-    __tablename__ = "feed"
-    __table_args__ = {"schema": "gps"}
-    name = mapped_column(String)
-
-
 class FeedItem(GISBase):
     __tablename__ = "feed_item"
     __table_args__ = {"schema": "gps"}
@@ -74,4 +68,3 @@ class Trajectory(GISBase):
     __table_args__ = {"schema": "gps"}
     geom = mapped_column(Geometry("GEOMETRYZM"))
     feed_item_id = mapped_column(ForeignKey(FeedItem.id))
-    feed_id = mapped_column(ForeignKey(Feed.id))

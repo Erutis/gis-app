@@ -20,18 +20,26 @@ services:
   db-setup: # create extensions & schemas
     container_name: db-setup
     environment: *common-variables
+    depends_on:
+      db:
+        condition: service_started
+        restart: true
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/db_setup.Dockerfile
 
-  alembic:
-    container_name: alembic-setup
-    image: python:3.11-slim-bullseye
-    environment: *common-variables
-    depends_on:
-      - db
-    command: >
-      /bin/sh -c "
-      alembic init alembic &&
-      alembic revision --autogenerate -m 'Initial migration' &&
-      alembic upgrade head"
+  # alembic:
+  #   container_name: alembic-setup
+  #   image: python:3.11-slim-bullseye
+  #   environment: *common-variables
+  #   depends_on:
+  #     db-setup:
+  #       condition: service_completed_successfully
+  #       restart: true
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/alembic.Dockerfile
+  #   command: >
+  #     /bin/sh -c "
+  #     alembic revision --autogenerate -m 'Initial migration' &&
+  #     alembic upgrade head"

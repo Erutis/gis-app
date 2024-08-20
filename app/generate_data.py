@@ -14,7 +14,8 @@ import uuid
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
-from db_setup import Trajectory, engine_go_vroom
+from db_setup import engine_go_vroom
+from tables import Trajectory
 
 
 # Pre-determined areas for random data generation
@@ -37,7 +38,6 @@ def main():
                 Trajectory(
                     geom=f"SRID=4326;{geom_type}({linestring})",
                     feed_item_id=uuid.uuid4(),
-                    feed_id=uuid.uuid4(),
                 )
             ]
 

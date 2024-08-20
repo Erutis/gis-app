@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.tables import Feed, FeedItem, Trajectory, metadata
+from app.tables import FeedItem, Trajectory, metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

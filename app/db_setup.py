@@ -5,62 +5,19 @@
 # Created: 2/21/24
 
 # Standard libraries
-from datetime import datetime, timezone
-
-import enum
 import os
 import time
 import traceback
 
 
 # External libraries
-from geoalchemy2 import Geometry
 from sqlalchemy import (
     create_engine,
-    Column,
-    Integer,
     schema,
     text,
-    TIMESTAMP,
-    UUID,
 )
 
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm.state import InstanceState
-
 # Internal libraries
-
-Base = declarative_base()
-
-
-class Trajectory(Base):
-    __tablename__ = "trajectory"
-    __table_args__ = {"schema": "gps"}
-    id = Column(Integer, primary_key=True)
-    create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
-    updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
-    geom = Column(Geometry("GEOMETRYZM"))
-    feed_item_id = Column(UUID)
-
-    def to_dict(self):
-        d = {}
-
-        for field, value in self.__dict__.items():
-            if any(
-                (
-                    isinstance(value, InstanceState),
-                    isinstance(value, list),
-                )
-            ):
-                continue
-            if isinstance(value, (int, float, bool, str, type(None))):
-                d[field] = value
-            elif isinstance(value, enum.Enum):
-                d[field] = value.name
-            else:
-                d[field] = str(value)
-
-        return d
 
 
 def setup_pg():
@@ -76,16 +33,7 @@ def setup_pg():
         conn.execute(schema.CreateSchema("gps"))
         conn.commit()
 
-        # Create Trajectory table in gps schema
-        # with engine.connect() as conn:
-        #     Feed.__table__.create(engine)
-        #     FeedItem.__table__.create(engine)
-        #     Trajectory.__table__.create(engine)
-        #     Trajectory.feed = relationship("Feed", back_populates="trajectory")
-        #     Trajectory.feed_item = relationship("FeedItem", back_populates="trajectory")
-
-        #     conn.commit()
-        print("Committed!")
+        print("Schema created!")
 
     return None
 
