@@ -18,11 +18,24 @@ jobs:
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         with:
           python-version: '3.11'
 
-  # make-new-branch:
+      - name: Create new branch
+        id: create-new-branch
+        uses: peter-evans/create-pull-request@v5
+        with:
+          base: main
+          title: "Create a new branch"
+          author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+        run: |
+          # Create a timestamp
+          TIMESTAMP=$(date +'%Y%m%d%H%M')
+          BRANCH_NAME="my-branch-$TIMESTAMP"
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+          echo "Branch $BRANCH_NAME created and pushed."
 
   # run-alembic-script-gen:
 

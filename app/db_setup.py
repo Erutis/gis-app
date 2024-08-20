@@ -82,6 +82,7 @@ def setup_pg():
 
         conn.commit()
         print("Committed!")
+        print("i have change")
 
     return None
 
