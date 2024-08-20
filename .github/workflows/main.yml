@@ -17,8 +17,7 @@ jobs:
         id: changed-db-files
         with:
           files: |
-            - "src/vrdb/*.py"
-            - "src/vrdb/**/*.py"
+            - "/app"
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
