@@ -22,20 +22,28 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Create new branch
-        id: create-new-branch
+      - name: Generate branch name
+        id: generate-branch-name
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+          BRANCH_NAME="my-branch-$TIMESTAMP"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Checkout new branch
+        id: checkout-new-branch
+        run: |
+          git checkout -b ${{ env.BRANCH_NAME }}
+          git push origin ${{ env.BRANCH_NAME }}
+
+      - name: Create PR
+        id: create-pull-request
         uses: peter-evans/create-pull-request@v5
         with:
+          branch: ${{ env.BRANCH_NAME }}
           base: main
           title: "Create a new branch"
           author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-        run: |
-          # Create a timestamp
-          TIMESTAMP=$(date +'%Y%m%d%H%M')
-          BRANCH_NAME="my-branch-$TIMESTAMP"
-          git checkout -b $BRANCH_NAME
-          git push origin $BRANCH_NAME
-          echo "Branch $BRANCH_NAME created and pushed."
+
 
   # run-alembic-script-gen:
 
