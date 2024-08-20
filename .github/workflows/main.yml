@@ -1,9 +1,36 @@
+name: DB Change Checks
+
 on:
-  push:
-    branches:
-      - main
+  push
+
+
+
 
 jobs:
-  check-database-changes:
+  check-sql-schema-changes:
     runs-on: github-dev-runner
-    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: tj-actions/changed-files@v44
+        id: changed-db-files
+        with:
+          files: |
+            - "src/vrdb/*.py"
+            - "src/vrdb/**/*.py"
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v5
+        if: steps.changed-files.outputs.any_changed == 'true'
+        with:
+          python-version: '3.11'
+
+  # make-new-branch:
+
+  # run-alembic-script-gen:
+
+  # open-pr:
+
+  # tag-someone:
+
