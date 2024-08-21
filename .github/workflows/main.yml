@@ -2,6 +2,8 @@ name: DB Change Checks
 
 on:
   push
+    branches:
+      - main
 
 jobs:
   check-sql-schema-changes:
@@ -10,7 +12,7 @@ jobs:
       - name: 1. Checkout Current Branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 2. Check For Changes
