@@ -18,7 +18,7 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           files: |
-            - "../app"
+            - "app"
 
       - name: 3. Set up Python
         id: setup-python
