@@ -1,0 +1,76 @@
+name: DB Change Checks
+
+on:
+  push
+
+jobs:
+  check-sql-schema-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Main Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check For Changes
+        id: changed-db-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            - "../app"
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v5
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
+        with:
+          python-version: '3.11'
+
+      - name: Generate envs
+        id: generate-envs
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d%H%M')
+          BRANCH_NAME="my-branch-$TIMESTAMP"
+          DATABASE_URL="abcd"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+
+      - name: Install alembic
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r app/requirements.txt
+
+      - name: Run alembic script autogeneration
+        id: run-alembic-script-autogen
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          alembic -c ../alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
+
+      - name: Checkout new branch
+        id: checkout-new-branch
+        run: |
+          git checkout -b ${{ env.BRANCH_NAME }}
+          git push origin ${{ env.BRANCH_NAME }}
+
+      - name: Add-alembic-script-to-new-branch
+        run: |
+          git add ../alembic/versions/
+          git commit -m "Add new Alembic migration"
+          git push origin HEAD:${{ github.ref }}
+
+      - name: Create PR
+        id: create-pull-request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          base: main
+          title: "Create a new PR"
+          author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+
+  # run-alembic-script-gen:
+
+  # open-pr:
+
+  # tag-someone:
+
