@@ -7,10 +7,10 @@ jobs:
   check-sql-schema-changes:
     runs-on: ubuntu-latest
     steps:
-      - name: 1. Checkout Main Branch
+      - name: 1. Checkout Current Branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 2. Check For Changes
@@ -18,7 +18,11 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           files: |
-            - "app"
+            - "app/"
+
+      - name: 2a. Output Changed Files
+        run: |
+          echo "Changed files: ${{ steps.changed-db-files.outputs.changed_files }}"
 
       - name: 3. Set up Python
         id: setup-python
