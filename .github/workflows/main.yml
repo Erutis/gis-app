@@ -18,15 +18,10 @@ jobs:
         with:
           files: |
             - "../app"
-
-  generate-alembic-script:
-    runs-on: ubuntu-latest
-    if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
-    steps:
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
-
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         with:
           python-version: '3.11'
 
