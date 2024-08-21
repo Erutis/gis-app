@@ -1,9 +1,7 @@
 name: DB Change Checks
 
 on:
-  push:
-    branches:
-      - main
+  push
 
 jobs:
   check-sql-schema-changes:
