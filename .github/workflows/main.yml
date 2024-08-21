@@ -44,7 +44,8 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          alembic -c alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
+          touch new_thing.py
+          # alembic -c alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
 
       - name: Checkout new branch
         id: checkout-new-branch
@@ -54,7 +55,7 @@ jobs:
 
       - name: Add-alembic-script-to-new-branch
         run: |
-          git add ../alembic/versions/
+          git add .
           git commit -m "Add new Alembic migration"
           git push origin HEAD:${{ github.ref }}
 
