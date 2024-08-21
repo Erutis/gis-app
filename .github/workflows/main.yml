@@ -44,7 +44,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          alembic -c ../alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
+          alembic -c alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
 
       - name: Checkout new branch
         id: checkout-new-branch
