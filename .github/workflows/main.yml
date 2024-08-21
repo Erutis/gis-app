@@ -22,7 +22,7 @@ jobs:
 
       - name: 2a. Output Changed Files
         run: |
-          echo "Changed files bool: ${{ steps.check-sql-schema-changes.outputs.any_changed == "true" }}"
+          echo "Changed files bool: ${{ steps.check-sql-schema-changes.outputs.any_changed == 'true' }}"
           echo "Changed files: ${{ steps.changed-db-files.outputs.changed_files }}"
 
       - name: 3. Set up Python
