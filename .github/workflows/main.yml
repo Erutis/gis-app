@@ -7,11 +7,13 @@ jobs:
   check-sql-schema-changes:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Main Branch
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: tj-actions/changed-files@v44
+      - name: Check For Changes
         id: changed-db-files
+        uses: tj-actions/changed-files@v44
         with:
           files: |
             - "../app"
@@ -25,12 +27,13 @@ jobs:
       - name: Generate branch name
         id: generate-branch-name
         run: |
-          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+          TIMESTAMP=$(date +'%Y%m%d%H%M')
           BRANCH_NAME="my-branch-$TIMESTAMP"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Checkout new branch
         id: checkout-new-branch
+        permissions: write
         run: |
           git checkout -b ${{ env.BRANCH_NAME }}
           git push origin ${{ env.BRANCH_NAME }}
@@ -38,10 +41,11 @@ jobs:
       - name: Create PR
         id: create-pull-request
         uses: peter-evans/create-pull-request@v5
+        permissions: write
         with:
           branch: ${{ env.BRANCH_NAME }}
           base: main
-          title: "Create a new branch"
+          title: "Create a new PR"
           author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
 
