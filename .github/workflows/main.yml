@@ -7,26 +7,29 @@ jobs:
   check-sql-schema-changes:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Main Branch
+      - name: 1. Checkout Main Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Check For Changes
+
+      - name: 2. Check For Changes
         id: changed-db-files
         uses: tj-actions/changed-files@v44
         with:
           files: |
             - "../app"
-      - name: Set up Python
+
+      - name: 3. Set up Python
         id: setup-python
         uses: actions/setup-python@v5
         if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         with:
           python-version: '3.11'
 
-      - name: Generate envs
+      - name: 4. Generate envs
         id: generate-envs
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         run: |
           TIMESTAMP=$(date +'%Y%m%d%H%M')
           BRANCH_NAME="my-branch-$TIMESTAMP"
@@ -34,19 +37,22 @@ jobs:
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
 
-      - name: Install alembic
+      - name: 5. Install alembic
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      - name: Run alembic script autogeneration
+      - name: 6. Run alembic script autogeneration
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         id: run-alembic-script-autogen
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           alembic -c alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
 
-      - name: Checkout new branch
+      - name: 7. Checkout new branch
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         id: checkout-new-branch
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -54,25 +60,20 @@ jobs:
           git checkout -b ${{ env.BRANCH_NAME }}
           git push origin ${{ env.BRANCH_NAME }}
 
-      - name: Add-alembic-script-to-new-branch
+      - name: 8. Add-alembic-script-to-new-branch
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         run: |
           git add .
           git commit -m "Add new Alembic migration"
           git push origin HEAD:${{ github.ref }}
 
-      - name: Create PR
+      - name: 9. Create PR
+        if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         id: create-pull-request
         uses: peter-evans/create-pull-request@v5
         with:
           branch: ${{ env.BRANCH_NAME }}
           base: main
-          title: "Create a new PR"
+          title: "BotPR: {{ env.BRANCH_NAME }}"
           author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-
-
-  # run-alembic-script-gen:
-
-  # open-pr:
-
-  # tag-someone:
 
