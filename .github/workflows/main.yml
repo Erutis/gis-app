@@ -37,7 +37,7 @@ jobs:
       - name: Install alembic
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r ../app/requirements.txt
 
       - name: Run alembic script autogeneration
         id: run-alembic-script-autogen
@@ -46,13 +46,11 @@ jobs:
         run: |
           alembic -c ../alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
 
-
       - name: Checkout new branch
         id: checkout-new-branch
         run: |
           git checkout -b ${{ env.BRANCH_NAME }}
           git push origin ${{ env.BRANCH_NAME }}
-
 
       - name: Add-alembic-script-to-new-branch
         run: |

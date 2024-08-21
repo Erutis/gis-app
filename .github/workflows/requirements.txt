@@ -1,4 +1,0 @@
-geoalchemy2~=0.14.4
-psycopg2-binary~=2.9.9
-sanic~=23.12.1
-sqlalchemy~=2.0.24
