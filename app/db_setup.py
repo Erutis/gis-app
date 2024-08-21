@@ -30,7 +30,7 @@ def setup_pg():
     with engine.connect() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
         conn.execute(text("SELECT postgis_full_version();"))
-        conn.execute(schema.CreateSchema("gps"))
+        conn.execute(schema.CreateSchema("zacksmom"))
         conn.commit()
 
         print("Schema created!")
