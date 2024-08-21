@@ -11,6 +11,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check For Changes
         id: changed-db-files
         uses: tj-actions/changed-files@v44
@@ -33,7 +34,6 @@ jobs:
 
       - name: Checkout new branch
         id: checkout-new-branch
-        permissions: write
         run: |
           git checkout -b ${{ env.BRANCH_NAME }}
           git push origin ${{ env.BRANCH_NAME }}
@@ -41,7 +41,6 @@ jobs:
       - name: Create PR
         id: create-pull-request
         uses: peter-evans/create-pull-request@v5
-        permissions: write
         with:
           branch: ${{ env.BRANCH_NAME }}
           base: main
