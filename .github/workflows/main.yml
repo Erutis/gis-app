@@ -56,7 +56,8 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          alembic -c alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
+          touch new_file_for_the_file_gods.py
+          #alembic -c alembic.ini revision --autogenerate -m "test script {{ env.BRANCH_NAME }}"
 
       - name: 7. Checkout new branch
         if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
