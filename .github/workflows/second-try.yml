@@ -1,7 +1,9 @@
 name: DB Change Check
 
 on:
-  pull_request
+  pull_request:
+    branches:
+      - main
 
 jobs:
   check-sql-schema-changes:
@@ -43,7 +45,7 @@ jobs:
             exit 1
           else
             echo "Neither condition is true. Completing successfully."
-            echo "true" > continue.txt # this should be false
+            echo "true" > continue.txt
           fi
 
       - name: Set Continue Output
