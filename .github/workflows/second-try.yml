@@ -17,16 +17,16 @@ jobs:
       - name: Check For DB Schema Change
         id: db-schema-changes
         uses: tj-actions/changed-files@v45
-        # with:
-        #   files: |
-        #     - "app/**"
+        with:
+          files: |
+            - app/**
 
       - name: Check For Migration File
         id: migration-changes
         uses: tj-actions/changed-files@v45
         with:
           files: |
-            - "migrations/versions/**"
+            - migrations/versions/**
 
       - name: Determine Outcome
         id: determine-outcome
