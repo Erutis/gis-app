@@ -43,7 +43,7 @@ jobs:
             exit 1
           else
             echo "Neither condition is true. Completing successfully."
-            echo "false" > continue.txt
+            echo "true" > continue.txt # this should be false
           fi
 
       - name: Set Continue Output
@@ -63,7 +63,6 @@ jobs:
 
       - name: Generate envs
         id: generate-envs
-        # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         run: |
           TIMESTAMP=$(date +'%Y%m%d%H%M')
           BRANCH_NAME="my-branch-$TIMESTAMP"
@@ -72,13 +71,11 @@ jobs:
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
 
       - name: Install alembic
-        # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install alembic # version?
 
       - name: Run alembic upgrade
-        # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
         id: run-alembic-upgrade
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -90,31 +87,4 @@ jobs:
         if: failure()
         run: |
           echo "Alembic upgrade failed."
-
-      # - name: 7. Checkout new branch
-      #   # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
-      #   id: checkout-new-branch
-      #   run: |
-      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      #     git config --global user.name "github-actions[bot]"
-      #     git checkout -b ${{ env.BRANCH_NAME }}
-      #     git push origin ${{ env.BRANCH_NAME }}
-
-      # - name: 8. Add alembic script to new branch
-      #   id: add-alembic-script-to-new-branch
-      #   # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
-      #   run: |
-      #     git add .
-      #     git commit -m "Add new Alembic migration"
-      #     git push origin HEAD:${{ github.ref }}
-
-      # - name: 9. Create PR
-      #   # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
-      #   id: create-pull-request
-      #   uses: peter-evans/create-pull-request@v5
-      #   with:
-      #     branch: ${{ env.BRANCH_NAME }}
-      #     base: main
-      #     title: "BotPR: {{ env.BRANCH_NAME }}"
-      #     author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
