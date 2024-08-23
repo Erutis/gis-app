@@ -1,0 +1,115 @@
+name: DB Change Check
+
+on:
+  pull_request
+
+jobs:
+  check-sql-schema-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Current Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check For DB Schema Change
+        id: db-schema-changes
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            - "app/**"
+
+      - name: Check For Migration File
+        id: migration-changes
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            - "migrations/versions/**"
+
+      - name: Determine Outcome
+        id: determine-outcome
+        run: |
+          echo "DB_CHANGE=${{ steps.db-schema-changes.outputs.any_changed }}" >> $GITHUB_ENV
+          echo "MIGRATION_CHANGE=${{ steps.migration-changes.outputs.any_changed }}" >> $GITHUB_ENV
+
+      - name: Check Conditions
+        id: check-conditions
+        run: |
+          if [[ "${{ env.DB_CHANGE }}" == "true" && "${{ env.MIGRATION_CHANGE }}" == "true" ]]; then
+            echo "Conditions met. Continue to the next job."
+            echo "continue=true" >> $GITHUB_ENV
+          elif [[ "${{ env.DB_CHANGE }}" == "true" || "${{ env.MIGRATION_CHANGE }}" == "true" ]]; then
+            echo "Only one condition is true. Failing the job."
+            exit 1
+          else
+            echo "Neither condition is true. Completing successfully."
+            echo "continue=false" >> $GITHUB_ENV
+          fi
+
+  run-alembic:
+    if: ${{ env.continue == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate envs
+        id: generate-envs
+        # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d%H%M')
+          BRANCH_NAME="my-branch-$TIMESTAMP"
+          DATABASE_URL="abcd"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+
+      - name: Install alembic
+        # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install alembic # version?
+
+      - name: Run alembic upgrade
+        # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
+        id: run-alembic-upgrade
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          alembic -c migrations/starter-kit/alembic.ini upgrade head"
+        continue-on-error: true
+
+      - name: Catch Step (only runs if Try Step fails)
+        if: failure()
+        run: |
+          echo "Alembic upgrade failed."
+
+      # - name: 7. Checkout new branch
+      #   # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
+      #   id: checkout-new-branch
+      #   run: |
+      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #     git config --global user.name "github-actions[bot]"
+      #     git checkout -b ${{ env.BRANCH_NAME }}
+      #     git push origin ${{ env.BRANCH_NAME }}
+
+      # - name: 8. Add alembic script to new branch
+      #   id: add-alembic-script-to-new-branch
+      #   # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
+      #   run: |
+      #     git add .
+      #     git commit -m "Add new Alembic migration"
+      #     git push origin HEAD:${{ github.ref }}
+
+      # - name: 9. Create PR
+      #   # if: steps.check-sql-schema-changes.outputs.any_changed == 'true'
+      #   id: create-pull-request
+      #   uses: peter-evans/create-pull-request@v5
+      #   with:
+      #     branch: ${{ env.BRANCH_NAME }}
+      #     base: main
+      #     title: "BotPR: {{ env.BRANCH_NAME }}"
+      #     author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
