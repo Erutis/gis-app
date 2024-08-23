@@ -37,7 +37,7 @@ jobs:
         run: |
           if [[ "${{ env.DB_CHANGE }}" == "true" && "${{ env.MIGRATION_CHANGE }}" == "true" ]]; then
             echo "Conditions met. Continue to the next job."
-            echo "continue=true" >> $GITHUB_ENV
+            echo "CONTINUE=true" >> $GITHUB_ENV
           elif [[ "${{ env.DB_CHANGE }}" == "true" || "${{ env.MIGRATION_CHANGE }}" == "true" ]]; then
             echo "Only one condition is true. Failing the job."
             exit 1
