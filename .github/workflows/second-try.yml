@@ -47,7 +47,8 @@ jobs:
           fi
 
   run-alembic:
-    if: ${{ $CONTINUE == 'true' }}
+    needs: check-sql-schema-changes
+    if: ${{ CONTINUE == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
