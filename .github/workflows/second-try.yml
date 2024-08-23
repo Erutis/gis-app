@@ -47,7 +47,7 @@ jobs:
           fi
 
   run-alembic:
-    if: ${{ env.CONTINUE == 'true' }}
+    if: ${{ $CONTINUE == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
