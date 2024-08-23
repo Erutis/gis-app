@@ -43,11 +43,11 @@ jobs:
             exit 1
           else
             echo "Neither condition is true. Completing successfully."
-            echo "continue=false" >> $GITHUB_ENV
+            echo "CONTINUE=false" >> $GITHUB_ENV
           fi
 
   run-alembic:
-    if: ${{ env.continue == 'true' }}
+    if: ${{ env.CONTINUE == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
