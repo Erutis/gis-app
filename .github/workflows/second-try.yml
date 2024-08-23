@@ -37,18 +37,22 @@ jobs:
         run: |
           if [[ "${{ env.DB_CHANGE }}" == "true" && "${{ env.MIGRATION_CHANGE }}" == "true" ]]; then
             echo "Conditions met. Continue to the next job."
-            echo "CONTINUE=true" >> $GITHUB_ENV
+            echo "true" > continue.txt
           elif [[ "${{ env.DB_CHANGE }}" == "true" || "${{ env.MIGRATION_CHANGE }}" == "true" ]]; then
             echo "Only one condition is true. Failing the job."
             exit 1
           else
             echo "Neither condition is true. Completing successfully."
-            echo "CONTINUE=false" >> $GITHUB_ENV
+            echo "false" > continue.txt
           fi
+
+        - name: Set Continue Output
+        id: set-continue-output
+        run: echo "continue=$(cat continue.txt)" >> $GITHUB_OUTPUT
 
   run-alembic:
     needs: check-sql-schema-changes
-    if: ${{ CONTINUE == 'true' }}
+    if: ${{ needs.check-sql-schema-changes.outputs.continue == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
