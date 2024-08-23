@@ -46,7 +46,7 @@ jobs:
             echo "false" > continue.txt
           fi
 
-        - name: Set Continue Output
+      - name: Set Continue Output
         id: set-continue-output
         run: echo "continue=$(cat continue.txt)" >> $GITHUB_OUTPUT
 
