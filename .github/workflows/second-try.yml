@@ -77,7 +77,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install alembic # version?
 
-      - name: Run alembic upgrade
+      - name: (Try) Run alembic upgrade
         id: run-alembic-upgrade
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -85,8 +85,8 @@ jobs:
           alembic -c migrations/starter-kit/alembic.ini upgrade head"
         continue-on-error: true
 
-      - name: Catch Step (only runs if Try Step fails)
-        if: failure()
+      - name: Failed
+        if: ${{steps.run-alembic-upgrade.outcome == 'failure'}}
         run: |
           echo "Alembic upgrade failed."
 
