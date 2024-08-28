@@ -1,0 +1,106 @@
+name: DB Change Check var1
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-sql-schema-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Current Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check For Changes
+        id: changed-db-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: "app/**"
+
+      - name: Check Conditions
+        id: check-conditions
+        run: |
+          echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_ENV
+
+  run-alembic:
+    needs: check-sql-schema-changes
+    if: ${{ needs.check-sql-schema-changes.DB_CHANGE == 'true' }}
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14-bullseye
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_DRIVERNAME: postgresql
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate envs
+        id: generate-envs
+        run: |
+          DATABASE_URL="postgresql://postgres:postgres@localhost:5432"
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+
+      - name: Install alembic
+        id: install-alembic
+        run: |
+          python -m pip install --upgrade pip
+          pip install alembic # version?
+
+      - name: Run alembic script autogeneration
+        id: run-alembic-script-autogen
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c alembic.ini revision --autogenerate -m "test_script"
+
+      - name: (Try) Run alembic upgrade
+        id: run-alembic-upgrade
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c migrations/starter-kit/alembic.ini upgrade head"
+
+      # - name: Checkout new branch
+      #   id: checkout-new-branch
+      #   run: |
+      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #     git config --global user.name "github-actions[bot]"
+      #     git checkout -b ${{ env.BRANCH_NAME }}
+      #     git push origin ${{ env.BRANCH_NAME }}
+
+      # - name: Add alembic script to new branch
+      #   id: add-alembic-script-to-new-branch
+      #   run: |
+      #     git add .
+      #     git commit -m "Add new Alembic migration"
+      #     git push origin HEAD:${{ github.ref }}
+
+      # - name: Create PR
+      #   id: create-pull-request
+      #   uses: peter-evans/create-pull-request@v5
+      #   with:
+      #     branch: ${{ env.BRANCH_NAME }}
+      #     base: main
+      #     title: "BotPR: {{ env.BRANCH_NAME }}"
+      #     author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+

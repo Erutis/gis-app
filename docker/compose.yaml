@@ -17,16 +17,16 @@ services:
     ports:
       - "5432:5432"
 
-  db-setup: # create extensions & schemas
-    container_name: db-setup
-    environment: *common-variables
-    depends_on:
-      db:
-        condition: service_started
-        restart: true
-    build:
-      context: ..
-      dockerfile: docker/db_setup.Dockerfile
+  # db-setup: # create extensions & schemas
+  #   container_name: db-setup
+  #   environment: *common-variables
+  #   depends_on:
+  #     db:
+  #       condition: service_started
+  #       restart: true
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/db_setup.Dockerfile
 
   # alembic:
   #   container_name: alembic-setup
