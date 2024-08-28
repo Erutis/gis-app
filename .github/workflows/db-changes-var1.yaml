@@ -9,11 +9,10 @@ jobs:
   check-sql-schema-changes:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Current Branch
+      - name: Checkout Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check For Changes
         id: changed-db-files
@@ -48,6 +47,12 @@ jobs:
           - 5432:5432
 
     steps:
+
+      - name: Checkout Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
@@ -71,7 +76,7 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          alembic -c alembic.ini revision --autogenerate -m "test_script"
+          alembic -c ./alembic.ini revision --autogenerate -m "test_script"
 
       - name: (Try) Run alembic upgrade
         id: run-alembic-upgrade
