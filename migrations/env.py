@@ -5,7 +5,7 @@ from sqlalchemy import pool, create_engine
 
 from alembic import context
 
-from app.tables import FeedItem, Trajectory, metadata
+from app.tables import *
 
 import os
 
