@@ -65,12 +65,11 @@ jobs:
           DATABASE_URL="postgresql://postgres:postgres@localhost:5432"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
 
-      - name: Install libraries
-        id: install-alembic
+      - name: Install dependencies
+        id: install-dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install alembic # version?
-          pip install geoalchemy2
+          pip install app/requirements.txt
 
       - name: Run alembic script autogeneration
         id: run-alembic-script-autogen
