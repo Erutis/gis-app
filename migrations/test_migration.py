@@ -5,26 +5,34 @@
 # Created: 4/18/24
 
 # Standard libraries
+import os
 import random
 import uuid
 
 # from datetime import datetime
 
 # External libraries
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
-from db_setup import Trajectory, engine_go_vroom
+from app.tables import Trajectory
 
 
 # Pre-determined areas for random data generation
 central_park = {"lon": (-73.973, -73.958), "lat": (40.765, 40.800)}
 northeast = {"lon": (-70, -75), "lat": (40, 43)}
 
+url = os.getenv("DATABASE_URL")
+engine = create_engine(url)
+
 
 def main():
     """Enter sample data into Trajectory table."""
-    engine = engine_go_vroom()
+
+    url = os.getenv("DATABASE_URL")
+    engine = create_engine(url)
+
     Session = sessionmaker(bind=engine)
     session = Session()
 
@@ -37,7 +45,6 @@ def main():
                 Trajectory(
                     geom=f"SRID=4326;{geom_type}({linestring})",
                     feed_item_id=uuid.uuid4(),
-                    feed_id=uuid.uuid4(),
                 )
             ]
 
