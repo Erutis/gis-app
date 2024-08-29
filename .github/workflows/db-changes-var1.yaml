@@ -87,6 +87,7 @@ jobs:
       - name: Test DB is set up
         id: test-db-set-up
         run: |
+          set -e # catch errors
           python app/generate_data.py
 
 
