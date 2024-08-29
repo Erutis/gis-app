@@ -1,6 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.schema import CreateSchema
 
 from alembic import context
@@ -75,6 +75,8 @@ def run_migrations_online() -> None:
         for schema in SCHEMATA:
             if not engine.dialect.has_schema(connection, schema):
                 connection.execute(CreateSchema(schema))
+        connection.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
+        connection.execute(text("SELECT postgis_full_version();"))
 
         with context.begin_transaction():
             context.run_migrations()
