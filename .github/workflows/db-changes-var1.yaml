@@ -72,7 +72,7 @@ jobs:
 
       - name: Install PostGIS
         run: |
-          sudo apt-get update && sudo apt-get install -y postgis
+          sudo apt-get update && sudo apt-get install -y postgis postgresql-14-postgis-3 postgresql-14-postgis-3-scripts
 
       # - name: Run alembic script autogeneration
       #   id: run-alembic-script-autogen
