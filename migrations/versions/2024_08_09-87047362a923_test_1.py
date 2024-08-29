@@ -40,10 +40,12 @@ def upgrade() -> None:
         sa.Column(
             "geom",
             geoalchemy2.types.Geometry(
-                geometry_type="GEOMETRYZM", from_text="ST_GeomFromEWKT", name="geometry"
+                geometry_type="GEOMETRYZM",
+                from_text="ST_GeomFromEWKT",
+                name="geometry",
+                spatial_index=False,
             ),
             nullable=True,
-            spatial_index=False,
         ),
         sa.Column("feed_item_id", sa.UUID(), nullable=True),
         sa.Column("id", sa.UUID(), nullable=False),
