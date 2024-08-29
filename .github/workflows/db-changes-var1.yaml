@@ -32,7 +32,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14-bullseye
+        image: postgis/postgis:14-3.4
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -70,9 +70,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      - name: Install PostGIS
-        run: |
-          sudo apt-get update && sudo apt-get install -y postgis postgresql-14-postgis-3 postgresql-14-postgis-3-scripts
+      # - name: Install PostGIS
+      #   run: |
+      #     sudo apt-get update && sudo apt-get install -y postgis postgresql-14-postgis-3 postgresql-14-postgis-3-scripts
 
       # - name: Run alembic script autogeneration
       #   id: run-alembic-script-autogen
