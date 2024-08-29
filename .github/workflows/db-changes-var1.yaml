@@ -88,7 +88,7 @@ jobs:
         id: test-db-set-up
         run: |
           set -e # catch errors
-          python app/generate_data.py
+          python migrations/test_migration.py
 
 
       # - name: Checkout new branch
