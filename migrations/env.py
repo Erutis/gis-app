@@ -1,6 +1,7 @@
 from logging.config import fileConfig
 
 from sqlalchemy import create_engine
+from sqlalchemy.schema import CreateSchema
 
 from alembic import context
 
@@ -27,6 +28,9 @@ target_metadata = [metadata]
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+SCHEMATA = ["gps"]
+
 
 url = os.getenv("DATABASE_URL")
 
@@ -67,6 +71,10 @@ def run_migrations_online() -> None:
 
     with engine.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
+
+        for schema in SCHEMATA:
+            if not engine.dialect.has_schema(connection, schema):
+                connection.execute(CreateSchema(schema))
 
         with context.begin_transaction():
             context.run_migrations()
