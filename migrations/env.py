@@ -1,11 +1,10 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool, create_engine
+from sqlalchemy import create_engine
 
 from alembic import context
 
-from app.tables import *
+from app.tables import FeedItem, Trajectory, metadata
 
 import os
 

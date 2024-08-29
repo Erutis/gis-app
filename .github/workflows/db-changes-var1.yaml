@@ -84,7 +84,7 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          alembic -c migrations/starter-kit/alembic.ini upgrade head"
+          alembic -c alembic.ini upgrade head"
 
       # - name: Checkout new branch
       #   id: checkout-new-branch
