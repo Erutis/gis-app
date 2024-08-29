@@ -70,6 +70,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
+      - name: Install PostGIS
+        run: |
+          apt-get update && apt-get install -y postgis
+
       # - name: Run alembic script autogeneration
       #   id: run-alembic-script-autogen
       #   env:
@@ -83,6 +87,10 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           alembic -c alembic.ini upgrade head
+
+      # - name: Test DB Migration
+      #   id: test-db-migration
+
 
       # - name: Checkout new branch
       #   id: checkout-new-branch
