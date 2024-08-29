@@ -70,12 +70,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      - name: Run alembic script autogeneration
-        id: run-alembic-script-autogen
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: |
-          alembic -c alembic.ini revision --autogenerate -m "test_script"
+      # - name: Run alembic script autogeneration
+      #   id: run-alembic-script-autogen
+      #   env:
+      #     DATABASE_URL: ${{ env.DATABASE_URL }}
+      #   run: |
+      #     alembic -c alembic.ini revision --autogenerate -m "test_script"
 
       - name: (Try) Run alembic upgrade
         id: run-alembic-upgrade
