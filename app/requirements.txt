@@ -1,4 +1,4 @@
-alembic~=2.0.0
+alembic~=1.13.1
 geoalchemy2~=0.14.4
 psycopg2-binary~=2.9.9
 sanic~=23.12.1
