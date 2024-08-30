@@ -8,7 +8,7 @@ COPY ../ .
 
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r app/alembic.txt
+RUN pip install --no-cache-dir -r app/requirements.txt
 
 # # Run db_setup.py when the container launches
 # CMD ["alembic", "init", "alembic"]

@@ -18,6 +18,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
@@ -33,6 +34,12 @@ SCHEMATA = ["gps"]
 
 
 url = os.getenv("DATABASE_URL")
+
+
+def process_revision_directives(context, revision, directives):
+    """Add necessary imports to new migration scripts."""
+    script = directives[0]
+    script.imports.add("import geoalchemy2")
 
 
 def run_migrations_offline() -> None:
@@ -70,7 +77,11 @@ def run_migrations_online() -> None:
     engine = create_engine(url)
 
     with engine.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            process_revision_directives=process_revision_directives,  # Make sure geoalchemy import included with any autogen script
+        )
 
         for schema in SCHEMATA:
             if not engine.dialect.has_schema(connection, schema):
