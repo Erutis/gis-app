@@ -16,7 +16,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
-from app.tables import Trajectory
+from app.tables import Trajectory, FeedItem
 
 
 # Pre-determined areas for random data generation
@@ -36,24 +36,28 @@ def main():
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    for _ in range(5):
-        try:
+    sample_data = []
+
+    try:
+        for _ in range(5):
             # Create rows from sample data
             linestring, geom_type = create_sample_linestring(central_park)
 
-            sample_data = [
-                Trajectory(
-                    geom=f"SRID=4326;{geom_type}({linestring})",
-                    feed_item_id=uuid.uuid4(),
-                )
-            ]
+            feed_item = FeedItem(name="hurhur")
 
-            session.add_all(sample_data)
-            session.commit()
+            trajectory = Trajectory(
+                geom=f"SRID=4326;{geom_type}({linestring})",
+                feed_item_id=feed_item.id,
+            )
 
-        except Exception as e:
-            print(e)
-            continue
+            sample_data.append(trajectory)
+            sample_data.append(feed_item)
+
+        session.add_all(sample_data)
+        session.commit()
+
+    except Exception as e:
+        print(e)
 
 
 def create_sample_linestring(area):
