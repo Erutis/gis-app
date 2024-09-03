@@ -23,8 +23,6 @@ from app.tables import Trajectory, FeedItem
 central_park = {"lon": (-73.973, -73.958), "lat": (40.765, 40.800)}
 northeast = {"lon": (-70, -75), "lat": (40, 43)}
 
-feed_item_id = uuid.uuid4()
-
 url = os.getenv("DATABASE_URL")
 engine = create_engine(url)
 
@@ -42,7 +40,7 @@ def add_db_rows():
             # Create rows from sample data
             linestring, geom_type = create_sample_linestring(central_park)
 
-            feed_item = FeedItem(id=feed_item_id, name="hurhur")
+            feed_item = FeedItem(id=uuid.uuid4(), name="hurhur")
 
             trajectory = Trajectory(
                 geom=f"SRID=4326;{geom_type}({linestring})",
@@ -86,11 +84,11 @@ def create_sample_linestring(area):
 
 def retrieve_row():
     """Retrieve recently created row."""
-    q = select(FeedItem).where(FeedItem.id == feed_item_id)
+    q = select(FeedItem)
     with session as s:
-        feed_item = s.execute(q).scalars().one_or_none()
+        feed_items = s.execute(q).scalars().all()
 
-    print(f"Retrieved feed item: {feed_item.id}")
+    print(f"Retrieved feed item: {feed_items}")
 
 
 if __name__ == "__main__":
