@@ -14,7 +14,8 @@ import uuid
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
-from db_setup import Trajectory, engine_go_vroom
+from db_setup import engine_go_vroom
+from app.tables import Trajectory
 
 
 # Pre-determined areas for random data generation
