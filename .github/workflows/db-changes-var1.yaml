@@ -78,7 +78,7 @@ jobs:
       #   run: |
       #     alembic -c alembic.ini revision --autogenerate -m "test_script"
 
-      - name: Run alembic - Initial DB setup
+      - name: Run alembic - Initial DB setup (with pre-populated script)
         id: run-alembic-upgrade-initial
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
