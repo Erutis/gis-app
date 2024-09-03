@@ -47,10 +47,11 @@ jobs:
           - 5432:5432
 
     steps:
-      - name: Checkout Branch
+      - name: Checkout Main Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: 'main'
 
       - name: Set up Python
         id: setup-python
@@ -71,13 +72,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      # - name: Run alembic script autogeneration
-      #   id: run-alembic-script-autogen
-      #   env:
-      #     DATABASE_URL: ${{ env.DATABASE_URL }}
-      #   run: |
-      #     alembic -c alembic.ini revision --autogenerate -m "test_script"
-
       - name: Run alembic - Initial DB setup (with pre-populated script)
         id: run-alembic-upgrade-initial
         env:
@@ -85,12 +79,31 @@ jobs:
         run: |
           alembic -c alembic.ini upgrade head
 
-      - name: Test DB is set up
+
+      - name: Checkout New Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run alembic script autogeneration
+        id: run-alembic-script-autogen
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c alembic.ini revision --autogenerate -m "test_script_02"
+
+      - name: Upgrade alembic head with new revision
+        id: run-alembic-upgrade-new
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c alembic.ini upgrade head
+
+      - name: Test DB is set up correctly
         id: test-db-set-up
         run: |
           set -e # catch errors
           python migrations/test_migration.py
-
 
       # - name: Checkout new branch
       #   id: checkout-new-branch
