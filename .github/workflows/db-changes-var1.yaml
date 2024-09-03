@@ -90,7 +90,6 @@ jobs:
         id: test-db-set-up
         run: |
           set -e # catch errors
-          pwd
           python migrations/test_migration.py
 
 

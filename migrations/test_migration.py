@@ -12,7 +12,7 @@ import uuid
 # from datetime import datetime
 
 # External libraries
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
 # Internal libraries
@@ -23,18 +23,17 @@ from app.tables import Trajectory, FeedItem
 central_park = {"lon": (-73.973, -73.958), "lat": (40.765, 40.800)}
 northeast = {"lon": (-70, -75), "lat": (40, 43)}
 
+feed_item_id = uuid.uuid4()
+
 url = os.getenv("DATABASE_URL")
 engine = create_engine(url)
 
+Session = sessionmaker(bind=engine)
+session = Session()
 
-def main():
+
+def add_db_rows():
     """Enter sample data into Trajectory table."""
-
-    url = os.getenv("DATABASE_URL")
-    engine = create_engine(url)
-
-    Session = sessionmaker(bind=engine)
-    session = Session()
 
     sample_data = []
 
@@ -43,7 +42,7 @@ def main():
             # Create rows from sample data
             linestring, geom_type = create_sample_linestring(central_park)
 
-            feed_item = FeedItem(name="hurhur")
+            feed_item = FeedItem(id=feed_item_id, name="hurhur")
 
             trajectory = Trajectory(
                 geom=f"SRID=4326;{geom_type}({linestring})",
@@ -85,5 +84,16 @@ def create_sample_linestring(area):
     return linestring, geom_type
 
 
+def retrieve_row():
+    """Retrieve recently created row."""
+    q = select(FeedItem).where(FeedItem.id == feed_item_id)
+    with session as s:
+        feed_item = s.execute(q).scalars().one_or_none()
+
+    print(f"Retrieved feed item: {feed_item.id}")
+
+
 if __name__ == "__main__":
-    main()
+    add_db_rows()
+    retrieve_row()
+    print("DB commit successful.")
