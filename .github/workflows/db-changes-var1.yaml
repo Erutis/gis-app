@@ -68,6 +68,7 @@ jobs:
         id: install-dependencies
         run: |
           python -m pip install --upgrade pip
+          pwd
           pip install -r app/requirements.txt
 
       # - name: Run alembic script autogeneration
@@ -88,6 +89,7 @@ jobs:
         id: test-db-set-up
         run: |
           set -e # catch errors
+          pwd
           python migrations/test_migration.py
 
 
