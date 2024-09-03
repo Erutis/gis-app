@@ -63,6 +63,7 @@ jobs:
         run: |
           DATABASE_URL="postgresql://postgres:postgres@localhost:5432"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+          echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
 
       - name: Install dependencies
         id: install-dependencies
