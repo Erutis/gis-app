@@ -47,6 +47,15 @@ jobs:
           - 5432:5432
 
     steps:
+      - name: Drop unwanted PostGIS extensions
+        run: |
+          psql -h localhost -U postgres -d postgres -c "DROP EXTENSION IF EXISTS postgis_tiger_geocoder CASCADE;"
+          psql -h localhost -U postgres -d postgres -c "DROP EXTENSION IF EXISTS postgis_topology CASCADE;"
+          psql -h localhost -U postgres -d postgres -c "DROP EXTENSION IF EXISTS fuzzystrmatch CASCADE;"
+
+        env:
+          PGPASSWORD: postgres
+
       - name: Checkout Main Branch
         uses: actions/checkout@v4
         with:

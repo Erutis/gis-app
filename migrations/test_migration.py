@@ -7,13 +7,15 @@
 # Standard libraries
 import os
 import random
+import sys
 import uuid
-
-# from datetime import datetime
 
 # External libraries
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Internal libraries
 from app.tables import Trajectory, FeedItem

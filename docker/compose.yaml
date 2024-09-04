@@ -1,9 +1,9 @@
 
 x-common-variables: &common-variables
-      POSTGRES_USER: nyc
-      POSTGRES_PASSWORD: gis #${POSTGRES_PASSWORD}
-      POSTGRES_DB: nyc
-      POSTGRES_HOST: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: localhost
       POSTGRES_DRIVERNAME: postgresql
       PORT: 5432
 
@@ -16,6 +16,14 @@ services:
     environment: *common-variables
     ports:
       - "5432:5432"
+    entrypoint: ["sh", "-c", "
+      docker-entrypoint.sh postgres &
+      until pg_isready -h localhost -p 5432; do sleep 1; done;
+      psql -h localhost -U postgres -d postgres -c 'DROP EXTENSION IF EXISTS postgis_tiger_geocoder CASCADE;';
+      psql -h localhost -U postgres -d postgres -c 'DROP EXTENSION IF EXISTS postgis_topology CASCADE;';
+      psql -h localhost -U postgres -d postgres -c 'DROP EXTENSION IF EXISTS fuzzystrmatch CASCADE;';
+      wait"] # Remove unwanted extensions
+
 
   # db-setup: # create extensions & schemas
   #   container_name: db-setup
