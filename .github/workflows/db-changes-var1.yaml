@@ -94,10 +94,8 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           alembic -c alembic.ini upgrade head
-          git branch
-          git status
           git add .
-          git stash
+          git stash # add and stash the last revision script before switching branches
 
       - name: Checkout New Branch
         uses: actions/checkout@v4
@@ -110,8 +108,7 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          git branch
-          git stash pop
+          git stash pop # get the last revision script
           alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
           cat migrations/versions/test_new_changes_002.py
 
