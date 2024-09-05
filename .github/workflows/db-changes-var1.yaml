@@ -101,7 +101,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run alembic script autogeneration
-        id: run-alembic-script-autogen
+        id: run-alembic-script-autogen-round-2
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
