@@ -101,9 +101,9 @@ jobs:
           fetch-depth: 0
 
       - name: Merge with Main
-        description: Make sure new migration file that was generated in main exists in new branch
         run: |
           git merge main
+          # Make sure new migration file that was generated in main exists in new branch
 
       - name: Run alembic script autogeneration
         id: run-alembic-script-autogen-round-2
