@@ -5,62 +5,19 @@
 # Created: 2/21/24
 
 # Standard libraries
-from datetime import datetime, timezone
-
-import enum
 import os
 import time
 import traceback
 
 
 # External libraries
-from geoalchemy2 import Geometry
 from sqlalchemy import (
     create_engine,
-    Column,
-    Integer,
     schema,
     text,
-    TIMESTAMP,
-    UUID,
 )
 
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm.state import InstanceState
-
 # Internal libraries
-
-Base = declarative_base()
-
-
-class Trajectory(Base):
-    __tablename__ = "trajectory"
-    __table_args__ = {"schema": "gps"}
-    id = Column(Integer, primary_key=True)
-    create_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
-    updated_time = Column(TIMESTAMP, default=datetime.now(timezone.utc))
-    geom = Column(Geometry("GEOMETRYZM"))
-    feed_item_id = Column(UUID)
-
-    def to_dict(self):
-        d = {}
-
-        for field, value in self.__dict__.items():
-            if any(
-                (
-                    isinstance(value, InstanceState),
-                    isinstance(value, list),
-                )
-            ):
-                continue
-            if isinstance(value, (int, float, bool, str, type(None))):
-                d[field] = value
-            elif isinstance(value, enum.Enum):
-                d[field] = value.name
-            else:
-                d[field] = str(value)
-
-        return d
 
 
 def setup_pg():
@@ -76,12 +33,7 @@ def setup_pg():
         conn.execute(schema.CreateSchema("gps"))
         conn.commit()
 
-    # Create Trajectory table in gps schema
-    with engine.connect() as conn:
-        Trajectory.__table__.create(engine)
-
-        conn.commit()
-        print("Committed!")
+        print("Schema created!")
 
     return None
 
@@ -107,9 +59,7 @@ def engine_go_vroom():
     USER = os.getenv("POSTGRES_USER", "nyc")
     PW = os.getenv("POSTGRES_PASSWORD", "gis")
     DB = os.getenv("POSTGRES_DB", "nyc")
-    HOST = os.getenv(
-        "POSTGRES_HOST", "localhost"
-    )  # this localhost only applies if running script locally
+    HOST = os.getenv("POSTGRES_HOST", "localhost")
     DRIVERNAME = os.getenv("POSTGRES_DRIVERNAME", "postgresql")
     PORT = os.getenv("PORT", "5432")
     url = f"{DRIVERNAME}://{USER}:{PW}@{HOST}:{PORT}/{DB}"

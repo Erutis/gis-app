@@ -1,10 +1,9 @@
 
-version: "3"
 x-common-variables: &common-variables
-      POSTGRES_USER: nyc
-      POSTGRES_PASSWORD: gis #${POSTGRES_PASSWORD}
-      POSTGRES_DB: nyc
-      POSTGRES_HOST: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: localhost
       POSTGRES_DRIVERNAME: postgresql
       PORT: 5432
 
@@ -17,11 +16,38 @@ services:
     environment: *common-variables
     ports:
       - "5432:5432"
+    entrypoint: ["sh", "-c", "
+      docker-entrypoint.sh postgres &
+      until pg_isready -h localhost -p 5432; do sleep 1; done;
+      psql -h localhost -U postgres -d postgres -c 'DROP EXTENSION IF EXISTS postgis_tiger_geocoder CASCADE;';
+      psql -h localhost -U postgres -d postgres -c 'DROP EXTENSION IF EXISTS postgis_topology CASCADE;';
+      psql -h localhost -U postgres -d postgres -c 'DROP EXTENSION IF EXISTS fuzzystrmatch CASCADE;';
+      wait"] # Remove unwanted extensions
 
-  db-setup: # create Trajectory table
-    container_name: db-setup
-    environment: *common-variables
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
 
+  # db-setup: # create extensions & schemas
+  #   container_name: db-setup
+  #   environment: *common-variables
+  #   depends_on:
+  #     db:
+  #       condition: service_started
+  #       restart: true
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/db_setup.Dockerfile
+
+  # alembic:
+  #   container_name: alembic-setup
+  #   image: python:3.11-slim-bullseye
+  #   environment: *common-variables
+  #   depends_on:
+  #     db-setup:
+  #       condition: service_completed_successfully
+  #       restart: true
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/alembic.Dockerfile
+  #   command: >
+  #     /bin/sh -c "
+  #     alembic revision --autogenerate -m 'Initial migration' &&
+  #     alembic upgrade head"
