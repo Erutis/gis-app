@@ -103,8 +103,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: 'add-gha-auto-db-migration'
 
-      - name: Run alembic script autogeneration
+      - name: Generate alembic script for new branch
         id: run-alembic-script-autogen-round-2
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
