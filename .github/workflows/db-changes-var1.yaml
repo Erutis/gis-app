@@ -56,11 +56,11 @@ jobs:
         env:
           PGPASSWORD: postgres
 
-      - name: Checkout Branch
+      - name: Checkout Main Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # ref: 'main'
+          ref: 'main'
 
       - name: Set up Python
         id: setup-python
@@ -94,34 +94,34 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           alembic -c alembic.ini upgrade head
-          git status
+          git add .
+          git stash
 
-      # - name: Checkout New Branch
-      #   uses: actions/checkout@v4
-      #   with:
-      #     fetch-depth: 0
+      - name: Checkout New Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Run alembic script autogeneration
+        id: run-alembic-script-autogen-round-2
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          git stash pop
+          alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
 
+      - name: Upgrade alembic head with new revision
+        id: run-alembic-upgrade-new
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c alembic.ini upgrade head
 
-      # - name: Run alembic script autogeneration
-      #   id: run-alembic-script-autogen-round-2
-      #   env:
-      #     DATABASE_URL: ${{ env.DATABASE_URL }}
-      #   run: |
-      #     alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
-
-      # - name: Upgrade alembic head with new revision
-      #   id: run-alembic-upgrade-new
-      #   env:
-      #     DATABASE_URL: ${{ env.DATABASE_URL }}
-      #   run: |
-      #     alembic -c alembic.ini upgrade head
-
-      # - name: Test DB is set up correctly
-      #   id: test-db-set-up
-      #   run: |
-      #     set -e # catch errors
-      #     python migrations/test_migration.py
+      - name: Test DB is set up correctly
+        id: test-db-set-up
+        run: |
+          set -e # catch errors
+          python migrations/test_migration.py
 
       # - name: Checkout new branch
       #   id: checkout-new-branch
