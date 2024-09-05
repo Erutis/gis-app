@@ -94,7 +94,7 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           alembic -c alembic.ini upgrade head
-          git add .
+          git branch
           git stash
 
       - name: Checkout New Branch
@@ -107,6 +107,7 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
+          git branch
           git stash pop
           alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
 
