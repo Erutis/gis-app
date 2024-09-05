@@ -81,7 +81,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      - name: Run alembic - Initial DB setup (with pre-populated script)
+      - name: Run alembic script autogeneration for Initial DB Setup
+        id: run-alembic-script-autogen
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c alembic.ini revision --autogenerate -m "test_temp_db_001"
+
+      - name: Alembic Upgrade Head
         id: run-alembic-upgrade-initial
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
@@ -98,7 +105,7 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          alembic -c alembic.ini revision --autogenerate -m "test_script_02"
+          alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
 
       - name: Upgrade alembic head with new revision
         id: run-alembic-upgrade-new
