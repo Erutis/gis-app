@@ -81,7 +81,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      - name: Run alembic script autogeneration for Initial DB Setup
+      - name: Run alembic script autogen for Initial DB Setup
         id: run-alembic-script-autogen
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
