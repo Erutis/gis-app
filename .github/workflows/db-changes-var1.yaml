@@ -112,6 +112,7 @@ jobs:
           git branch
           git stash pop
           alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
+          cat migrations/versions/test_new_changes_002.py
 
       - name: Upgrade alembic head with new revision
         id: run-alembic-upgrade-new
