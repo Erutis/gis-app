@@ -1,4 +1,4 @@
-name: DB Change Check var1
+name: DB Change Check var1 - K
 
 on:
   pull_request:
@@ -56,7 +56,7 @@ jobs:
         env:
           PGPASSWORD: postgres
 
-      - name: Checkout Main Branch
+      - name: Checkout Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -94,36 +94,34 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           alembic -c alembic.ini upgrade head
+          git status
 
-      - name: Checkout New Branch
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      # - name: Checkout New Branch
+      #   uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0
 
-      - name: Merge with Main
-        run: |
-          git merge main
-          # Make sure new migration file that was generated in main exists in new branch
 
-      - name: Run alembic script autogeneration
-        id: run-alembic-script-autogen-round-2
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: |
-          alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
 
-      - name: Upgrade alembic head with new revision
-        id: run-alembic-upgrade-new
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: |
-          alembic -c alembic.ini upgrade head
+      # - name: Run alembic script autogeneration
+      #   id: run-alembic-script-autogen-round-2
+      #   env:
+      #     DATABASE_URL: ${{ env.DATABASE_URL }}
+      #   run: |
+      #     alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
 
-      - name: Test DB is set up correctly
-        id: test-db-set-up
-        run: |
-          set -e # catch errors
-          python migrations/test_migration.py
+      # - name: Upgrade alembic head with new revision
+      #   id: run-alembic-upgrade-new
+      #   env:
+      #     DATABASE_URL: ${{ env.DATABASE_URL }}
+      #   run: |
+      #     alembic -c alembic.ini upgrade head
+
+      # - name: Test DB is set up correctly
+      #   id: test-db-set-up
+      #   run: |
+      #     set -e # catch errors
+      #     python migrations/test_migration.py
 
       # - name: Checkout new branch
       #   id: checkout-new-branch
