@@ -41,6 +41,23 @@ def process_revision_directives(context, revision, directives):
     script.imports.add("import geoalchemy2")
 
 
+def include_object(obj, name, type_, reflected, compare_to):
+    """
+    Good bot generated a docstring:
+        Custom function to include/exclude objects in Alembic autogenerate.
+
+        :param obj: SQLAlchemy object being considered (table, column, etc.)
+        :param name: Name of the object
+        :param type_: Type of object ('table', 'column', etc.)
+        :param reflected: True if the object is reflected from the database
+        :param compare_to: The corresponding object to compare against
+        :return: True if the object should be included in autogenerate, False to exclude
+    """
+    if type_ == "table" and name == "spatial_ref_sys":
+        return False
+    return True
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -80,6 +97,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,  # Make sure geoalchemy import included with any autogen script
+            include_object=include_object,
         )
 
         for schema in SCHEMATA:
