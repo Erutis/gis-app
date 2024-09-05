@@ -96,6 +96,7 @@ jobs:
           alembic -c alembic.ini upgrade head
           git branch
           git status
+          git add .
           git stash
 
       - name: Checkout New Branch
