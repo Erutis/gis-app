@@ -81,12 +81,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      - name: Run alembic script autogen for Initial DB Setup
-        id: run-alembic-script-autogen
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: |
-          alembic -c alembic.ini revision --autogenerate -m "test_temp_db_001"
+      # - name: Run alembic script autogen for Initial DB Setup
+      #   id: run-alembic-script-autogen
+      #   env:
+      #     DATABASE_URL: ${{ env.DATABASE_URL }}
+      #   run: |
+      #     alembic -c alembic.ini revision --autogenerate -m "test_temp_db_001"
 
       - name: Alembic Upgrade Head
         id: run-alembic-upgrade-initial
@@ -95,11 +95,11 @@ jobs:
         run: |
           alembic -c alembic.ini upgrade head
 
-      - name: Git stash migration script for new branch checkout
-        id: git-stash-migration-script
-        run: |
-          git add .
-          git stash
+      # - name: Git stash migration script for new branch checkout
+      #   id: git-stash-migration-script
+      #   run: |
+      #     git add .
+      #     git stash
 
       - name: Checkout New Branch
         uses: actions/checkout@v4
