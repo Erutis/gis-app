@@ -23,26 +23,13 @@ jobs:
       - name: Determine Outcome
         id: determine-outcome
         run: |
+          set -ex
           echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_ENV
-
-      - name: Check Conditions
-        id: check-conditions
-        run: |
-          if [[ "${{ env.DB_CHANGE }}" == "true" ]]; then
-            echo "Conditions met. Continue to the next job."
-            echo "true" > continue.txt
-          else
-            echo "Nothing to see here, folks."
-            echo "false" > continue.txt
-          fi
-
-      - name: Set Continue Output
-        id: set-continue-output
-        run: echo "continue=$(cat continue.txt)" >> $GITHUB_OUTPUT
+          echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_OUTPUT
 
   run-alembic:
     needs: check-sql-schema-changes
-    if: needs.check-sql-schema-changes.outputs.continue == 'true'
+    if: needs.check-sql-schema-changes.outputs.DB_CHANGE == 'true'
     runs-on: ubuntu-latest
 
     services:
