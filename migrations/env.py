@@ -108,6 +108,7 @@ def run_migrations_online() -> None:
             dialect_opts={"paramstyle": "named"},
             include_schemas=True,
             include_name=include_name,
+            transactional_ddl=False,
         )
 
         with context.begin_transaction():
