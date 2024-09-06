@@ -8,18 +8,15 @@ on:
 jobs:
   check-sql-schema-changes:
     runs-on: ubuntu-latest
-    outputs:
-      db-change: ${{ steps.check-conditions.outputs.db-change }}
     steps:
       - name: Checkout Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref:
 
       - name: Check For Changes
         id: changed-db-files
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@v45
         with:
           files: "app/**"
 
