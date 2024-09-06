@@ -22,13 +22,6 @@ jobs:
         with:
           files: "app/**"
 
-      - name: Determine Outcome
-        id: determine-outcome
-        run: |
-          set -ex
-          echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_ENV
-          echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_OUTPUT
-
   run-alembic:
     needs: check-sql-schema-changes
     if: needs.check-sql-schema-changes.outputs.DB_CHANGE == 'true'
