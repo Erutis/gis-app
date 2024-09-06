@@ -81,25 +81,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      # - name: Run alembic script autogen for Initial DB Setup
-      #   id: run-alembic-script-autogen
-      #   env:
-      #     DATABASE_URL: ${{ env.DATABASE_URL }}
-      #   run: |
-      #     alembic -c alembic.ini revision --autogenerate -m "test_temp_db_001"
-
       - name: Alembic Upgrade Head
         id: run-alembic-upgrade-initial
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           alembic -c alembic.ini upgrade head
-
-      # - name: Git stash migration script for new branch checkout
-      #   id: git-stash-migration-script
-      #   run: |
-      #     git add .
-      #     git stash
 
       - name: Checkout New Branch
         uses: actions/checkout@v4
@@ -112,9 +99,8 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          # git stash pop # get the last revision script
-          alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
-          cat migrations/versions/test_new_changes_002.py
+          alembic -c alembic.ini revision --autogenerate -m "test_001"
+          cat migrations/versions/test_001.py
 
       - name: Upgrade alembic head with new revision
         id: run-alembic-upgrade-new
@@ -133,13 +119,4 @@ jobs:
       - name: Add new alembic script to PR
         id: add-alembic-script-to-new-branch
         uses: stefanzweifel/git-auto-commit-action@v5
-
-      # - name: Create PR
-      #   id: create-pull-request
-      #   uses: peter-evans/create-pull-request@v5
-      #   with:
-      #     branch: ${{ env.BRANCH_NAME }}
-      #     base: main
-      #     title: "BotPR: {{ env.BRANCH_NAME }}"
-      #     author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
