@@ -88,6 +88,12 @@ jobs:
         run: |
           alembic -c alembic.ini upgrade head
 
+      - name: Test DB is set up correctly on init
+        id: test-db-set-up-init
+        run: |
+          set -e # catch errors
+          python migrations/test_migration.py
+
       - name: Checkout New Branch
         uses: actions/checkout@v4
         with:
@@ -109,7 +115,7 @@ jobs:
         run: |
           alembic -c alembic.ini upgrade head
 
-      - name: Test DB is set up correctly
+      - name: Test DB is still set up correctly
         id: test-db-set-up
         run: |
           set -e # catch errors
