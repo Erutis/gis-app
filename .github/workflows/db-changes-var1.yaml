@@ -9,7 +9,7 @@ jobs:
   check-sql-schema-changes:
     runs-on: ubuntu-latest
     outputs:
-      db-change: ${{ steps.changed-db-files.outputs.DB_CHANGE }}
+      db-change: ${{ steps.check-conditions.outputs.db-change }}
     steps:
       - name: Checkout Branch
         uses: actions/checkout@v4
@@ -27,6 +27,9 @@ jobs:
         id: check-conditions
         run: |
           echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_ENV
+        outputs:
+          db-change: ${{ steps.changed-db-files.outputs.any_changed }}
+
 
   run-alembic:
     needs: check-sql-schema-changes
