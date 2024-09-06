@@ -98,6 +98,9 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,  # Make sure geoalchemy import included with any autogen script
             include_object=include_object,
+            dialect_opts={"paramstyle": "named"},
+            include_schemas=True,
+            include_name=include_name,
         )
 
         for schema in SCHEMATA:
@@ -108,6 +111,13 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
+
+
+def include_name(name, type_, parent_names):
+    if type_ == "schema":
+        return name in SCHEMATA
+    else:
+        return True
 
 
 if context.is_offline_mode():
