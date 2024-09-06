@@ -98,6 +98,7 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,  # Make sure geoalchemy import included with any autogen script
             include_object=include_object,
+            transactional_ddl=False,
         )
 
         for schema in SCHEMATA:
