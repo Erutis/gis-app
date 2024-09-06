@@ -8,6 +8,8 @@ on:
 jobs:
   check-sql-schema-changes:
     runs-on: ubuntu-latest
+    outputs:
+      DB_CHANGE: ${{ steps.changed-db-files.outputs.any_changed }}
     steps:
       - name: Checkout Branch
         uses: actions/checkout@v4
