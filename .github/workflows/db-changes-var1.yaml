@@ -8,28 +8,23 @@ on:
 jobs:
   check-sql-schema-changes:
     runs-on: ubuntu-latest
+    outputs:
+      DB_CHANGE: ${{ steps.changed-db-files.outputs.any_changed }}
     steps:
       - name: Checkout Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref:
 
       - name: Check For Changes
         id: changed-db-files
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@v45
         with:
           files: "app/**"
 
-      - name: Check Conditions
-        id: check-conditions
-        run: |
-          echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_ENV
-          echo $DB_CHANGE
-
   run-alembic:
     needs: check-sql-schema-changes
-    if: ${{ needs.check-sql-schema-changes.DB_CHANGE == 'true' }}
+    if: needs.check-sql-schema-changes.outputs.DB_CHANGE == 'true'
     runs-on: ubuntu-latest
 
     services:
@@ -96,11 +91,10 @@ jobs:
           set -e # catch errors
           python migrations/test_migration.py
 
-      - name: Checkout New Branch
+      - name: Checkout PR Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: 'add-gha-auto-db-migration'
 
       - name: Fetch Main Branch
         run: |
@@ -127,7 +121,6 @@ jobs:
         run: |
           set -e # catch errors
           python migrations/test_migration.py
-
 
       - name: Confirm schema is correct
         run: |
