@@ -99,8 +99,8 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          alembic -c alembic.ini revision --autogenerate -m "test_001"
-          cat migrations/versions/test_001.py
+          alembic -c alembic.ini revision --autogenerate -m "test_002"
+          cat migrations/versions/test_002.py
 
       - name: Upgrade alembic head with new revision
         id: run-alembic-upgrade-new
