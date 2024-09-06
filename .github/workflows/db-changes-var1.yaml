@@ -100,9 +100,10 @@ jobs:
           fetch-depth: 0
           ref: 'add-gha-auto-db-migration'
 
-      - name: git diff
+      - name: Fetch Main Branch
         run: |
-          git diff
+          git fetch origin main  # Fetch the latest changes from main
+          git merge origin/main   # Merge main branch into current branch
 
       - name: Generate alembic script for new branch
         id: run-alembic-script-autogen-round-2
