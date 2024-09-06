@@ -86,11 +86,11 @@ def create_sample_linestring(area):
 
 def retrieve_row():
     """Retrieve recently created row."""
-    q = select(FeedItem)
+    q = select(Trajectory)
     with session as s:
-        feed_items = s.execute(q).scalars().all()
+        trajs = s.execute(q).scalars().all()
 
-    print(f"Retrieved feed item: {feed_items}")
+    print(f"Retrieved feed item: {[traj for traj in trajs]}")
 
 
 if __name__ == "__main__":
