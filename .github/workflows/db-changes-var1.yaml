@@ -132,10 +132,7 @@ jobs:
 
       - name: Add new alembic script to PR
         id: add-alembic-script-to-new-branch
-        run: |
-          git add .
-          git commit -m "Add new Alembic migration"
-          git push origin HEAD:${{ github.ref }}
+        uses: stefanzweifel/git-auto-commit-action@v5
 
       # - name: Create PR
       #   id: create-pull-request
