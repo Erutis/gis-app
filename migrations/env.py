@@ -39,6 +39,12 @@ def process_revision_directives(context, revision, directives):
     script = directives[0]
     script.imports.add("import geoalchemy2")
 
+    if config.cmd_opts.autogenerate:
+        script = directives[0]
+        if script.upgrade_ops.is_empty():
+            directives[:] = []
+            print("No changes in schema detected.")
+
 
 def include_object(obj, name, type_, reflected, compare_to):
     """
