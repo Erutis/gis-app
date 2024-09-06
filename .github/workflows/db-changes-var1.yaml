@@ -1,0 +1,143 @@
+name: Auto DB Migration
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-sql-schema-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref:
+
+      - name: Check For Changes
+        id: changed-db-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: "app/**"
+
+      - name: Check Conditions
+        id: check-conditions
+        run: |
+          echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_ENV
+          echo $DB_CHANGE
+
+  run-alembic:
+    needs: check-sql-schema-changes
+    if: ${{ needs.check-sql-schema-changes.DB_CHANGE == 'true' }}
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:14-3.4
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_DRIVERNAME: postgresql
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Drop unwanted PostGIS extensions
+        run: |
+          psql -h localhost -U postgres -d postgres -c "DROP EXTENSION IF EXISTS postgis_tiger_geocoder CASCADE;"
+          psql -h localhost -U postgres -d postgres -c "DROP EXTENSION IF EXISTS postgis_topology CASCADE;"
+          psql -h localhost -U postgres -d postgres -c "DROP EXTENSION IF EXISTS fuzzystrmatch CASCADE;"
+
+        env:
+          PGPASSWORD: postgres
+
+      - name: Checkout Main Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: 'main'
+
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate envs & set path
+        id: generate-envs
+        run: |
+          DATABASE_URL="postgresql://postgres:postgres@localhost:5432"
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+          echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        id: install-dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r app/requirements.txt
+
+      - name: Alembic Upgrade Head
+        id: run-alembic-upgrade-initial
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c alembic.ini upgrade head
+
+      - name: Test DB is set up correctly on init
+        id: test-db-set-up-init
+        run: |
+          set -e # catch errors
+          python migrations/test_migration.py
+
+      - name: Checkout New Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: 'add-gha-auto-db-migration'
+
+      - name: Fetch Main Branch
+        run: |
+          git fetch origin main  # Fetch the latest changes from main
+          git merge origin/main   # Merge main branch into current branch
+
+      - name: Generate alembic script for new branch
+        id: run-alembic-script-autogen-round-2
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c alembic.ini revision --autogenerate -m "test_002"
+          cat migrations/versions/test_002.py
+
+      - name: Upgrade alembic head with new revision
+        id: run-alembic-upgrade-new
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          alembic -c alembic.ini upgrade head
+
+      - name: Test DB is still set up correctly
+        id: test-db-set-up
+        run: |
+          set -e # catch errors
+          python migrations/test_migration.py
+
+
+      - name: Confirm schema is correct
+        run: |
+          psql -h localhost -U postgres -d postgres -c "\dt public.*"
+          psql -h localhost -U postgres -d postgres -c "\dt gps.*"
+        env:
+          PGPASSWORD: postgres
+
+      - name: Add new alembic script to PR
+        id: add-alembic-script-to-new-branch
+        uses: stefanzweifel/git-auto-commit-action@v5
+
+
