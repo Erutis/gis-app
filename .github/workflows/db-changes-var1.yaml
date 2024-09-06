@@ -127,6 +127,13 @@ jobs:
           python migrations/test_migration.py
 
 
+      - name: Confirm schema is correct
+        run: |
+          psql -h localhost -U postgres -d postgres -c "\dt"  # List all tables
+
+        env:
+          PGPASSWORD: postgres
+
       # - name: Add new alembic script to PR
       #   id: add-alembic-script-to-new-branch
         # uses: stefanzweifel/git-auto-commit-action@v5
