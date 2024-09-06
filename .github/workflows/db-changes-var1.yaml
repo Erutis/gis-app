@@ -1,4 +1,4 @@
-name: DB Change Check var1 - K
+name: Auto DB Migration
 
 on:
   pull_request:
@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref:
 
       - name: Check For Changes
         id: changed-db-files
@@ -24,10 +25,11 @@ jobs:
         id: check-conditions
         run: |
           echo "DB_CHANGE=${{ steps.changed-db-files.outputs.any_changed }}" >> $GITHUB_ENV
+          echo $DB_CHANGE
 
   run-alembic:
     needs: check-sql-schema-changes
-    # if: ${{ needs.check-sql-schema-changes.DB_CHANGE == 'true' }}
+    if: ${{ needs.check-sql-schema-changes.DB_CHANGE == 'true' }}
     runs-on: ubuntu-latest
 
     services:
