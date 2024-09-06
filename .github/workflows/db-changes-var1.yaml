@@ -122,7 +122,8 @@ jobs:
           python migrations/test_migration.py
 
 
-      - name: Add new alembic script to PR
-        id: add-alembic-script-to-new-branch
-        uses: stefanzweifel/git-auto-commit-action@v5
+      # - name: Add new alembic script to PR
+      #   id: add-alembic-script-to-new-branch
+        # uses: stefanzweifel/git-auto-commit-action@v5
+
 
