@@ -90,7 +90,7 @@ def retrieve_row():
     with session as s:
         trajs = s.execute(q).scalars().all()
 
-    print(f"Retrieved feed item: {[traj for traj in trajs]}")
+    print(f"Retrieved feed item: {[[t.id for t in traj] for traj in trajs]}")
 
 
 if __name__ == "__main__":

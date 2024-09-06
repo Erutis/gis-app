@@ -129,7 +129,7 @@ jobs:
 
       - name: Confirm schema is correct
         run: |
-          psql -h localhost -U postgres -d postgres -c "\dt *.*" # List all tables
+          psql -h localhost -U postgres -d postgres -c "\dt public.* gps.*" # List all tables
 
         env:
           PGPASSWORD: postgres
