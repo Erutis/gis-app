@@ -42,7 +42,7 @@ jobs:
 
   run-alembic:
     needs: check-sql-schema-changes
-    if:  ${{ needs.check-sql-schema-changes.outputs.continue == 'true' }}
+    if: needs.check-sql-schema-changes.outputs.continue == 'true'
     runs-on: ubuntu-latest
 
     services:
