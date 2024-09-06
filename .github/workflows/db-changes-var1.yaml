@@ -112,7 +112,7 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          git stash pop # get the last revision script
+          # git stash pop # get the last revision script
           alembic -c alembic.ini revision --autogenerate -m "test_new_changes_002"
           cat migrations/versions/test_new_changes_002.py
 
