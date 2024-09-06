@@ -31,6 +31,10 @@ jobs:
           if [[ "${{ env.DB_CHANGE }}" == "true" ]]; then
             echo "Conditions met. Continue to the next job."
             echo "true" > continue.txt
+          else
+            echo "Nothing to see here, folks."
+            echo "false" > continue.txt
+          fi
 
   run-alembic:
     needs: check-sql-schema-changes
