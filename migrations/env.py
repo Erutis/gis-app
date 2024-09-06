@@ -93,6 +93,13 @@ def run_migrations_online() -> None:
     engine = create_engine(url)
 
     with engine.connect() as connection:
+        with connection.begin():
+            for schema in SCHEMATA:
+                if not engine.dialect.has_schema(connection, schema):
+                    connection.execute(CreateSchema(schema))
+            connection.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
+            connection.execute(text("SELECT postgis_full_version();"))
+
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
@@ -102,12 +109,6 @@ def run_migrations_online() -> None:
             include_schemas=True,
             include_name=include_name,
         )
-
-        for schema in SCHEMATA:
-            if not engine.dialect.has_schema(connection, schema):
-                connection.execute(CreateSchema(schema))
-        connection.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
-        connection.execute(text("SELECT postgis_full_version();"))
 
         with context.begin_transaction():
             context.run_migrations()
