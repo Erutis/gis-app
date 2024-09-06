@@ -100,6 +100,10 @@ jobs:
           fetch-depth: 0
           ref: 'add-gha-auto-db-migration'
 
+      - name: git diff
+        run: |
+          git diff
+
       - name: Generate alembic script for new branch
         id: run-alembic-script-autogen-round-2
         env:
