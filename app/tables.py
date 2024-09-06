@@ -68,3 +68,4 @@ class Trajectory(GISBase):
     __table_args__ = {"schema": "gps"}
     geom = mapped_column(Geometry("GEOMETRYZM", spatial_index=False))
     feed_item_id = mapped_column(ForeignKey(FeedItem.id))
+    new_column = mapped_column(String)
