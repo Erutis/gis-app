@@ -91,7 +91,7 @@ jobs:
           set -e # catch errors
           python migrations/test_migration.py
 
-      - name: Checkout New Branch
+      - name: Checkout PR Branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
