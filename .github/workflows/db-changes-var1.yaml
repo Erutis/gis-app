@@ -129,13 +129,13 @@ jobs:
 
       - name: Confirm schema is correct
         run: |
-          psql -h localhost -U postgres -d postgres -c "\dt public.* gps.*" # List all tables
-
+          psql -h localhost -U postgres -d postgres -c "\dt public.*"
+          psql -h localhost -U postgres -d postgres -c "\dt gps.*"
         env:
           PGPASSWORD: postgres
 
-      # - name: Add new alembic script to PR
-      #   id: add-alembic-script-to-new-branch
-        # uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Add new alembic script to PR
+        id: add-alembic-script-to-new-branch
+        uses: stefanzweifel/git-auto-commit-action@v5
 
 
