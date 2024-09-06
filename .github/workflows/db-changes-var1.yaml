@@ -94,6 +94,9 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           alembic -c alembic.ini upgrade head
+
+      - name: Preserve migration script for new branch checkout
+        id: git-stash-migration-script
           git add .
           git stash # add and stash the last revision script before switching branches
 

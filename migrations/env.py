@@ -98,7 +98,8 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,  # Make sure geoalchemy import included with any autogen script
             include_object=include_object,
-            transactional_ddl=False,
+            # transactional_ddl=False,
+            transaction_per_migration=True,
         )
 
         for schema in SCHEMATA:
@@ -113,7 +114,5 @@ def run_migrations_online() -> None:
 
 if context.is_offline_mode():
     run_migrations_offline()
-    print("RAN MIGRATION OFFLINE")
 else:
     run_migrations_online()
-    print("RAN MIGRATION ONLINE")
