@@ -5,14 +5,16 @@
 # Created: 4/18/24
 
 # Standard libraries
+import json
 import os
 import random
 import sys
 import uuid
 
 # External libraries
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, func
 from sqlalchemy.orm import sessionmaker
+
 
 # Add the parent directory to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -91,6 +93,14 @@ def retrieve_row():
         trajs = s.execute(q).scalars().all()
 
     print(f"Retrieved feed item: {[traj.id for traj in trajs]}")
+
+
+def append_trajectory(fi_uid, traj_to_append):
+    q = select(func.ST_AsGeoJSON(Trajectory)).where(Trajectory.feed_item_id == fi_uid)
+    with session as s:
+        trajs = s.execute(q).scalar()
+
+    trajs = json.loads(trajs)
 
 
 if __name__ == "__main__":
