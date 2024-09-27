@@ -96,11 +96,19 @@ def retrieve_row():
 
 
 def append_trajectory(fi_uid, traj_to_append):
-    q = select(func.ST_AsGeoJSON(Trajectory)).where(Trajectory.feed_item_id == fi_uid)
+    q = select(func.ST_AsGeoJSON(Trajectory))
+    q = q.where(Trajectory.feed_item_id == fi_uid)
     with session as s:
-        trajs = s.execute(q).scalar()
+        trajs = s.execute(q).all()
 
-    trajs = json.loads(trajs)
+    trajs = [json.loads(row[0]) for row in trajs] if trajs else []
+
+    for t in trajs:
+        coords = t["geometry"]["coordinates"]
+        refreshed_coords = coords.append(traj_to_append)
+
+        new_geojson = {"type": "LineString", "coordinates": refreshed_coords}
+        # ...TBC
 
 
 if __name__ == "__main__":
