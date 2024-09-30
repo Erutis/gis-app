@@ -12,12 +12,12 @@ import sys
 import uuid
 
 # External libraries
-from sqlalchemy import create_engine, select, func
+from sqlalchemy import create_engine, select, func, update
 from sqlalchemy.orm import sessionmaker
 
 
 # Add the parent directory to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Internal libraries
 from app.tables import Trajectory, FeedItem
@@ -95,20 +95,41 @@ def retrieve_row():
     print(f"Retrieved feed item: {[traj.id for traj in trajs]}")
 
 
-def append_trajectory(fi_uid, traj_to_append):
+def append_trajectory(traj_id, traj_to_append):
+    """Pull the database record as a GeoJSON. Update the coordinates by appending.
+    Pull the ORM object. Replace the contents of the geometry column. Commit.
+    !!!! Problem: ST_AsGeoJSON doesn't support 4-dimensional records. Only 3 are pulled.
+    """
     q = select(func.ST_AsGeoJSON(Trajectory))
-    q = q.where(Trajectory.feed_item_id == fi_uid)
+    q = q.where(Trajectory.id == traj_id)
     with session as s:
-        trajs = s.execute(q).all()
+        traj = s.execute(q).one_or_none()
 
-    trajs = [json.loads(row[0]) for row in trajs] if trajs else []
+    traj = json.loads(traj[0])
 
-    for t in trajs:
-        coords = t["geometry"]["coordinates"]
-        refreshed_coords = coords.append(traj_to_append)
+    traj["geometry"]["coordinates"].append(traj_to_append)
+    new_coords = traj["geometry"]["coordinates"]
+    geom_type = traj["geometry"]["type"]
 
-        new_geojson = {"type": "LineString", "coordinates": refreshed_coords}
-        # ...TBC
+    q = select(Trajectory).where(Trajectory.id == traj_id)
+    with session as s:
+        traj = s.execute(q).scalars().one_or_none()
+
+    traj.geom = f"SRID=4326;{geom_type}({new_coords})"
+
+
+def update_traj(traj_id, traj_to_append):
+    # if needed, stringify
+    # traj_to_append = f"{str(traj_to_append)[1:-1]}"
+    len_of_traj = len(traj_to_append)  # for later
+    traj_to_append = func.ST_MakePoint(
+        traj_to_append[0], traj_to_append[1], traj_to_append[2]
+    )
+    q = update(Trajectory).where(Trajectory.id == traj_id)
+    q = q.values(geom=func.ST_AddPoint(Trajectory.geom, traj_to_append))
+
+    session.execute(q)
+    session.commit()
 
 
 if __name__ == "__main__":
